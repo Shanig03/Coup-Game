@@ -1,10 +1,10 @@
-#ifndef GENERAL.HPP
-#define GENERAL.HPP
+#ifndef GENERAL_HPP
+#define GENERAL_HPP
 
 #include "Game.hpp"
 
 namespace coup {
-    class General{
+    class General : public Player{
 
         public:
         General(Game g, string name);
