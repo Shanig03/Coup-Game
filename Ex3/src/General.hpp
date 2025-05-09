@@ -1,12 +1,18 @@
+#ifndef GENERAL.HPP
+#define GENERAL.HPP
 
-// General.hpp
-#pragma once
-#include "Player.hpp"
+#include "Game.hpp"
 
 namespace coup {
-class General : public Player {
-public:
-    General(Game& game, const std::string& name);
-    void block_coup(Player& target);
-};
+    class General{
+
+        public:
+        General(Game g, string name);
+    };
+
 }
+
+
+
+
+#endif

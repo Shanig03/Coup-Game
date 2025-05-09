@@ -1,11 +1,18 @@
-// Judge.hpp
-#pragma once
-#include "Player.hpp"
+#ifndef JUDGE.HPP
+#define JUDGE.HPP
+
+#include "Game.hpp"
 
 namespace coup {
-class Judge : public Player {
-public:
-    Judge(Game& game, const std::string& name);
-    void undo(Player& other) override;
-};
+    class Judge{
+
+        public:
+        Judge(Game g, string name);
+    };
+
 }
+
+
+
+
+#endif

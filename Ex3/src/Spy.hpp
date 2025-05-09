@@ -1,12 +1,15 @@
-// Spy.hpp
-#pragma once
-#include "Player.hpp"
+#ifndef SPY.HPP
+#define SPY.HPP
+
+#include "Game.hpp"
 
 namespace coup {
-class Spy : public Player {
-public:
-    Spy(Game& game, const std::string& name);
-    void spy_on(Player& other);
-    void prevent_arrest(Player& target);
-};
+    class Spy{
+
+        public:
+        Spy(Game g, string name);
+    };
+
 }
+
+#endif

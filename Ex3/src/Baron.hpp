@@ -1,10 +1,18 @@
-#pragma once
-#include "Player.hpp"
+#ifndef BARON.HPP
+#define BARON.HPP
+
+#include "Game.hpp"
 
 namespace coup {
-class Baron : public Player {
-public:
-    Baron(Game& game, const std::string& name);
-    void invest();
-};
+    class Baron{
+
+        public:
+        Baron(Game g, string name);
+    };
+
 }
+
+
+
+
+#endif

@@ -68,33 +68,22 @@ int main() {
     governor.undo(spy); // Governor undo tax
     cout << spy.coins() << endl; // Expected: 1
 
-    cout << "got here 1" << endl; 
-
     baron.tax();
-    cout << "got here 2" << endl; 
 
     general.gather();
-    cout << "got here 3" << endl; 
 
     judge.gather(); 
-    cout << "got here 4" << endl; 
 
 
     governor.tax();
-    cout << "got here 5" << endl; 
     spy.gather();
-    cout << "got here 6" << endl; 
 
     baron.invest(); // Baron traded its 3 coins and got 6 
-    cout << "got here 7" << endl; 
 
     try
     {
         general.gather();
-        cout << "got here 8" << endl; 
-
         judge.gather();
-        cout << "got here 9" << endl; 
     }
     catch(const std::runtime_error& e)
     {
