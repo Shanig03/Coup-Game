@@ -8,7 +8,6 @@ namespace coup {
 
     class Game {
         private:
-        int jackpot;
         std::vector<std::string> playersList;
         std::string currPlayer;
 
@@ -23,7 +22,9 @@ namespace coup {
 
         void addPlayer(std::string name);
 
-        int& getJackpot();
+        void removePlayer(std::string name);
+
+        void startGame();
     };
 
 }

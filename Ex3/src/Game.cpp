@@ -20,10 +20,6 @@ namespace coup {
         return this->currPlayer;
     }
 
-    int& Game::getJackpot(){
-        return this->jackpot;
-    }
-
     void Game::passTurns(){
         auto it = std::find(this->playersList.begin(), this->playersList.end(), this->currPlayer);
 
@@ -38,6 +34,21 @@ namespace coup {
             this->currPlayer = playersList[(index + 1) % playersList.size()];
         }
     }
+
+    void Game::startGame(){
+        this->currPlayer = this->playersList[0];
+    }
+
+    void Game::removePlayer(std::string name){
+        auto it = std::find(playersList.begin(), playersList.end(), name);
+        if (it != playersList.end()) {
+            playersList.erase(it);
+            std::cout << "Eliminated: " << name << std::endl;
+        } else {
+            std::cout << "Player not found: " << name << std::endl;
+        }
+    }
+
 
 
 }

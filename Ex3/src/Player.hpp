@@ -3,6 +3,7 @@
 
 #include "Game.hpp"
 #include <iostream>
+#include <stdexcept>
 
 namespace coup {
     class Player {
@@ -11,26 +12,28 @@ namespace coup {
         std::string playerName;
         int coinsAmount;
         std::string role;
-        Game currGame;
+        Game& currGame;
         bool isSanctioned;
 
         public:
         Player(Game& game, const std::string name, std::string role);
-        ~Player();
+        //~Player(); // Not sure if needed
 
         void gather();
 
         void tax();
 
-        int& coins();
+        int coins();
 
         void bribe();
 
-        void arrest();
+        void arrest(Player& p);
 
-        void sanction();
+        void sanction(Player& p);
 
         void coup(const Player& player);
+
+        bool getSan();
 
     };
 
