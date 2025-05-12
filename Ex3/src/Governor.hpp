@@ -1,15 +1,19 @@
 #ifndef GOVERNOR_HPP
 #define GOVERNOR_HPP
 
+#include <iostream>
 #include "Game.hpp"
+#include "Player.hpp"
 
 namespace coup {
     class Governor : public Player{
 
         public:
-        Governor(Game g, string name);
+        Governor(Game& g, std::string& name);
 
-        void undo(Player& player);
+        void tax() override;
+
+        bool undo(Player& player) override;
     };
 
 }

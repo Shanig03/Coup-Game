@@ -4,7 +4,9 @@
 namespace coup {
 
     // Constructor definition in Player.cpp
-    Player::Player(Game& game, const std::string& name, const std::string& role): currGame(game), playerName(name), role(role), coinsAmount(0), isSanctioned(false), isAlive(true) {}
+    Player::Player(Game& game, const std::string& name, const std::string& role): 
+    currGame(game), playerName(name), role(role), coinsAmount(0), isSanctioned(false), 
+    isAlive(true) {}
 
 
 
@@ -33,6 +35,7 @@ namespace coup {
         }
         if(!isSanctioned){
             this->coinsAmount += 2; // Adds 2 coins to the player
+            this->currGame.moveTurnTo("Governor", *this);
             std::cout << coinsAmount << std::endl;
             this->currGame.passTurns();
         }
@@ -129,5 +132,15 @@ namespace coup {
     }
     
 
+    std::string Player::getRole(){
+        return this->role;
+    }
+
+    void Player::decreaseCoins(int newAmount){
+        this->coinsAmount -= newAmount;
+    }
+
+
+    bool Player::undo(Player& player){}
 
 }

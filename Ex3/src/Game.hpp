@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <stdexcept>
 #include <iostream>
+#include <functional> 
 
 
 #include "Player.hpp"
@@ -31,6 +32,11 @@ namespace coup {
         void removePlayer(std::string name);
 
         void startGame();
+
+        std::string winner();
+
+        void moveTurnTo(const std::string& role, Player& p);
+
     };
 
 }

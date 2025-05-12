@@ -9,7 +9,7 @@ namespace coup {
     
     class Player {
 
-        private:
+        protected:
         std::string playerName;
         int coinsAmount;
         std::string role;
@@ -21,34 +21,37 @@ namespace coup {
         Player(Game& game, const std::string& name, const std::string& role);
         //~Player(); // Not sure if needed
 
-        void gather();
+        virtual void gather();
 
-        void tax();
+        virtual void tax();
 
-        int coins() const;
+        virtual int coins() const;
 
-        void bribe();
+        virtual void bribe();
 
-        void arrest(Player& p);
+        virtual void arrest(Player& p);
 
-        void sanction(Player& p);
+        virtual void sanction(Player& p);
 
-        void coup(Player& player);
+        virtual void coup(Player& player);
 
-        bool getSan() const;
+        virtual bool getSan() const;
 
-        bool getAlive() const;
+        virtual bool getAlive() const;
 
-        std::string getName() const;
+        virtual std::string getRole();
+
+        virtual std::string getName() const;
         
-        void setAlive(bool aliveStatus);
+        virtual void setAlive(bool aliveStatus);
 
+        virtual void decreaseCoins(int newAmount);
+
+        virtual bool undo(Player& player);
 
 
     };
 
 }
-
-
 
 #endif

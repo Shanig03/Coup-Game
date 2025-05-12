@@ -91,6 +91,12 @@ int main() {
     p.gather(); // shani
 
     p2.gather();
+
+    try {
+        g.winner();
+    } catch (const std::exception& e) {
+        std::cerr << e.what() << std::endl;
+    }
     
 
     std::cout << "is alive before coup: " << p.getAlive() << std::endl;
@@ -109,6 +115,9 @@ int main() {
     } catch (const std::exception& e) {
         std::cerr << "Gather failed as expected: " << e.what() << std::endl;
     }
+
+    std::cout << "The winner is: " << g.winner() << std::endl;
+
 
     return 0;
 }
