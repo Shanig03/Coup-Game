@@ -1,11 +1,13 @@
-#include <iostream>
-#include "Player.hpp"
-#include "Game.hpp"
 
 #include <exception>
 #include <iostream>
 #include <stdexcept>
 #include <vector>
+#include <iostream>
+
+#include "Game.hpp"
+#include "Player.hpp"
+
 
 using namespace coup;
 
@@ -13,6 +15,9 @@ int main() {
     Game g;
     Player p(g, "shani", "spy");
     Player p2(g, "noa", "spy");
+
+    g.addPlayer(&p);
+    g.addPlayer(&p2);
 
     g.startGame();
 
@@ -74,6 +79,36 @@ int main() {
     std::cout << "Current player: " << g.turn() << std::endl;
 
     p2.gather();
+
+    p.gather(); // shani
+
+    p2.gather();
+
+    p.gather(); // shani
+
+    p2.gather();
+
+    p.gather(); // shani
+
+    p2.gather();
+    
+
+    std::cout << "is alive before coup: " << p.getAlive() << std::endl;
+    
+    try {
+        p2.coup(p);
+    } catch (const std::exception& e) {
+        std::cerr << "Coup failed: " << e.what() << std::endl;
+    }
+
+    std::cout << "is alive after coup: " << p.getAlive() << std::endl;
+
+
+    try {
+        p.gather();
+    } catch (const std::exception& e) {
+        std::cerr << "Gather failed as expected: " << e.what() << std::endl;
+    }
 
     return 0;
 }

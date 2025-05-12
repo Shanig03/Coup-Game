@@ -1,15 +1,17 @@
 #include "Player.hpp"
+#include "Game.hpp"
 
 namespace coup {
 
-    Player::Player(Game& game, const std::string name, std::string role) 
-        : currGame(game), playerName(name) , role(role), coinsAmount(0) {
-        game.addPlayer(name);
-        isSanctioned = false;
-    }
+    // Constructor definition in Player.cpp
+    Player::Player(Game& game, const std::string& name, const std::string& role): currGame(game), playerName(name), role(role), coinsAmount(0), isSanctioned(false), isAlive(true) {}
+
 
 
     void Player::gather(){
+        if (!this->isAlive){
+            throw std::runtime_error("Player is out of the game.");
+        }
         if (this->currGame.turn() != this->playerName) {
             throw std::runtime_error("Action out of turn.");
         }
@@ -23,6 +25,9 @@ namespace coup {
     }
 
     void Player::tax(){
+        if (!this->isAlive){
+            throw std::runtime_error("Player is out of the game.");
+        }
         if (this->currGame.turn() != this->playerName) {
             throw std::runtime_error("Action out of turn.");
         }
@@ -34,6 +39,9 @@ namespace coup {
     }
 
     void Player::arrest(Player& p){
+        if (!this->isAlive){
+            throw std::runtime_error("Player is out of the game.");
+        }
         if (this->currGame.turn() != this->playerName) {
             throw std::runtime_error("Action out of turn.");
         }
@@ -48,17 +56,23 @@ namespace coup {
         this->isSanctioned = false;
     }
 
-    int Player::coins(){
+    int Player::coins() const{
         return this->coinsAmount;
     }
 
     void Player::bribe(){
+        if (!this->isAlive){
+            throw std::runtime_error("Player is out of the game.");
+        }
         if (this->coinsAmount < 4){
             throw std::invalid_argument("Player must have 4 coins to use the Bribe action.");
         }
     }
 
     void Player::sanction(Player& p){
+        if (!this->isAlive){
+            throw std::runtime_error("Player is out of the game.");
+        }
         if (this->coinsAmount < 3){
             throw std::invalid_argument("Player must have 3 coins to use the Sanction action.");
         }
@@ -68,22 +82,52 @@ namespace coup {
     }
 
 
-    void Player::coup(const Player& player){
-        if (this->coinsAmount < 7){
+    void Player::coup(Player& player) {
+        // Check if the player and target player are alive
+        if (!this->isAlive || !player.getAlive()) {
+            throw std::runtime_error("One of the players is out of the game.");
+        }
+
+        // Ensure that the player performing the coup has enough coins
+        if (this->coins() < 7) {
             throw std::invalid_argument("Player must have 7 coins to use the Coup action.");
         }
 
-        this->currGame.removePlayer(player.playerName); // Remove the player from the players list
-        this->currGame.passTurns();
+        // Execute the coup action by removing the player and passing turns
+        this->currGame.removePlayer(player.playerName);  
+        this->coinsAmount -= 7;  
 
+        // Remove this
+        std::cout << "After coup, this player coins: " << this->coins() << std::endl;
+        
+        // Mark the player as dead
+        player.isAlive = false;
+        this->currGame.passTurns();
+        std::cout << "Turn passed after coup." << std::endl;
+
+        // Reset the sanctioned status
         this->isSanctioned = false;
     }
 
 
-    bool Player::getSan(){
+    bool Player::getSan() const{
         return this->isSanctioned;
     }
 
+
+    bool Player::getAlive() const {
+        return this->isAlive;
+    }
+
+    
+    std::string Player::getName() const{
+        return this->playerName;
+    }
+
+    void Player::setAlive(bool aliveStatus) {
+        this->isAlive = aliveStatus;
+    }
+    
 
 
 }

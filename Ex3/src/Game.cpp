@@ -1,19 +1,37 @@
 #include "Game.hpp"
 
+
 namespace coup {
 
     Game::Game(){}
 
-    void Game::addPlayer(const std::string name){
-        if (std::find(this->playersList.begin(), this->playersList.end(), name) == this->playersList.end()) {
-            this->playersList.push_back(name);
-        } else {
-            std::cout << "Player already exists." << std::endl;
+    void Game::addPlayer(Player* p){
+        if (playersList.size() >= 6) {
+            throw std::runtime_error("Can't add more than 6 players.");
         }
+
+        // Check for duplicate by name
+        for (Player* existing : playersList) {
+            if (existing->getName() == p->getName()) {
+                std::cout << "Player already exists." << std::endl;
+                return;
+            }
+        }
+
+        this->playersList.push_back(p);
     }
 
     const std::vector<std::string> Game::players(){
-        return this->playersList;
+
+        std::vector<std::string> playersNames;
+
+        for (Player* p : playersList) {
+            if (p->getAlive()) {
+                playersNames.push_back(p->getName());
+            }
+        }
+
+        return playersNames;
     }
 
     const std::string Game::turn(){
@@ -21,32 +39,46 @@ namespace coup {
     }
 
     void Game::passTurns(){
-        auto it = std::find(this->playersList.begin(), this->playersList.end(), this->currPlayer);
-
-        if (it == this->playersList.end()) {
-            // If current player is not set or not found, start with the first player
-            if (!playersList.empty()) {
-                this->currPlayer = playersList[0];
+        // Find current player's index
+        size_t index = 0;
+        for (size_t i = 0; i < playersList.size(); ++i) {
+            if (playersList[i]->getName() == currPlayer) {
+                index = i;
+                break;
             }
-        } else {
-            // Move to the next player, wrap around if at the end
-            size_t index = std::distance(playersList.begin(), it);
-            this->currPlayer = playersList[(index + 1) % playersList.size()];
         }
+
+        size_t total = playersList.size();
+        for (size_t offset = 1; offset <= total; ++offset) {
+            Player* nextPlayer = playersList[(index + offset) % total];
+            if (nextPlayer->getAlive()) {
+                currPlayer = nextPlayer->getName();
+                return;
+            }
+        }
+
+        throw std::runtime_error("No alive players to pass turn to.");
     }
 
     void Game::startGame(){
-        this->currPlayer = this->playersList[0];
+        for (Player* p : playersList) {
+            if (p->getAlive()) {
+                this->currPlayer = p->getName();
+                return;
+            }
+        }
+        throw std::runtime_error("No active players to start the game.");
     }
 
     void Game::removePlayer(std::string name){
-        auto it = std::find(playersList.begin(), playersList.end(), name);
-        if (it != playersList.end()) {
-            playersList.erase(it);
-            std::cout << "Eliminated: " << name << std::endl;
-        } else {
-            std::cout << "Player not found: " << name << std::endl;
+        for (Player* p : playersList) {
+            if (p->getName() == name) {
+                p->setAlive(false);
+                std::cout << "Eliminated: " << name << std::endl;
+                return;
+            }
         }
+        std::cout << "Player not found: " << name << std::endl;
     }
 
 

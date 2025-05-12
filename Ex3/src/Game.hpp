@@ -3,12 +3,18 @@
 #include <vector>
 #include <iostream>
 #include <algorithm>
+#include <stdexcept>
+#include <iostream>
+
+
+#include "Player.hpp"
 
 namespace coup {
+    class Player;
 
     class Game {
         private:
-        std::vector<std::string> playersList;
+        std::vector<Player*> playersList;
         std::string currPlayer;
 
         public:
@@ -20,7 +26,7 @@ namespace coup {
 
         void passTurns();
 
-        void addPlayer(std::string name);
+        void addPlayer(Player* p);
 
         void removePlayer(std::string name);
 

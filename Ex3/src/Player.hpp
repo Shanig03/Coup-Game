@@ -1,11 +1,12 @@
 #ifndef PLAYER_HPP
-#define PLAYER_sHPP
+#define PLAYER_HPP
 
-#include "Game.hpp"
 #include <iostream>
 #include <stdexcept>
 
 namespace coup {
+    class Game;
+    
     class Player {
 
         private:
@@ -14,16 +15,17 @@ namespace coup {
         std::string role;
         Game& currGame;
         bool isSanctioned;
+        bool isAlive;
 
         public:
-        Player(Game& game, const std::string name, std::string role);
+        Player(Game& game, const std::string& name, const std::string& role);
         //~Player(); // Not sure if needed
 
         void gather();
 
         void tax();
 
-        int coins();
+        int coins() const;
 
         void bribe();
 
@@ -31,9 +33,17 @@ namespace coup {
 
         void sanction(Player& p);
 
-        void coup(const Player& player);
+        void coup(Player& player);
 
-        bool getSan();
+        bool getSan() const;
+
+        bool getAlive() const;
+
+        std::string getName() const;
+        
+        void setAlive(bool aliveStatus);
+
+
 
     };
 
