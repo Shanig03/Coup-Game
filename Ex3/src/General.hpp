@@ -1,13 +1,19 @@
 #ifndef GENERAL_HPP
 #define GENERAL_HPP
 
+#include <iostream>
 #include "Game.hpp"
+#include "Player.hpp"
+
 
 namespace coup {
     class General : public Player{
 
         public:
-        General(Game g, string name);
+        General(Game& g, const std::string& name);
+
+        bool undo(Player& player) override;
+
     };
 
 }

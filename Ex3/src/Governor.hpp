@@ -14,6 +14,32 @@ namespace coup {
         void tax() override;
 
         bool undo(Player& player) override;
+
+
+        /*
+        private:
+            bool undoAnswered = false;
+            bool undoChoice = false;  // true = undo, false = skip
+
+        public:
+            void setUndoAnswer(bool choice) {
+                undoChoice = choice;
+                undoAnswered = true;
+            }
+
+            bool hasAnsweredUndo() const {
+                return undoAnswered;
+            }
+
+            bool wantsToUndo() const {
+                return undoChoice;
+            }
+
+            void resetUndoState() {
+                undoAnswered = false;
+                undoChoice = false;
+            }
+        */
     };
 
 }

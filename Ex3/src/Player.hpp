@@ -14,8 +14,10 @@ namespace coup {
         int coinsAmount;
         std::string role;
         Game& currGame;
-        bool isSanctioned;
-        bool isAlive;
+        bool isSanctioned; // Is plater got sanctioned
+        bool isAlive; // Is plater "alive"
+        bool anotherTurn; // Is player should get another turn
+        bool undoCoup;
 
         public:
         Player(Game& game, const std::string& name, const std::string& role);
@@ -25,7 +27,7 @@ namespace coup {
 
         virtual void tax();
 
-        virtual int coins() const;
+        int coins() const;
 
         virtual void bribe();
 
@@ -35,19 +37,22 @@ namespace coup {
 
         virtual void coup(Player& player);
 
-        virtual bool getSan() const;
+        bool getSan() const;
 
-        virtual bool getAlive() const;
+        bool getAlive() const;
 
-        virtual std::string getRole();
+        std::string getRole();
 
-        virtual std::string getName() const;
+        std::string getName() const;
         
-        virtual void setAlive(bool aliveStatus);
+        void setAlive(bool aliveStatus);
 
-        virtual void decreaseCoins(int newAmount);
+        void decreaseCoins(int newAmount);
 
         virtual bool undo(Player& player);
+
+        void setUndoCoup(bool undo);
+
 
 
     };

@@ -109,52 +109,19 @@ namespace coup {
 
     void Game::moveTurnTo(const std::string& role, Player& p) {
         std::string originalTurn = this->currPlayer;
-        int originalIndex = -1;
-    
-        // Find the index of the original player
-        for (size_t i = 0; i < playersList.size(); ++i) {
-            if (playersList[i]->getName() == originalTurn) {
-                originalIndex = static_cast<int>(i);
-                break;
-            }
-        }
-    
-        if (originalIndex == -1) {
-            throw std::runtime_error("Original player not found.");
-        }
-    
-        bool undone = false;
-    
-        // Loop through players with the given role (excluding original actor)
-        for (size_t i = 1; i < playersList.size(); ++i) {
-            size_t idx = (originalIndex + i) % playersList.size();
-            Player* candidate = playersList[idx];
-    
+
+        for (Player* candidate : playersList) {
             if (!candidate->getAlive() || candidate->getName() == originalTurn) {
                 continue;
             }
-    
+
             if (candidate->getRole() == role) {
-                this->currPlayer = candidate->getName();  // Temporarily give them the turn
-    
-                // If the player decides to undo, stop
-                if (candidate->undo(p)) {
-                    undone = true;
-                    break;
+                bool result = candidate->undo(p);  // ask the player if they want to undo
+                if (result) {
+                    break;  // only break if someone actually undoes
                 }
             }
         }
-    
-        // Always return turn to original actor and if not alive, pass the turn to the next alive player 
-        for (size_t i = 0; i <= playersList.size(); ++i) {
-            size_t idx = (originalIndex + i) % playersList.size();
-            if (playersList[idx]->getAlive()) {
-                this->currPlayer = playersList[idx]->getName();
-                return;
-            }
-        }
-    
-        throw std::runtime_error("No alive player to pass turn to.");
     }
 
 

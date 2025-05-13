@@ -8,7 +8,7 @@ namespace coup {
     // Constructor definition in Player.cpp
     Player::Player(Game& game, const std::string& name, const std::string& role): 
     currGame(game), playerName(name), role(role), coinsAmount(0), isSanctioned(false), 
-    isAlive(true) {}
+    isAlive(true), anotherTurn(false), undoCoup(false) {}
 
 
 
@@ -50,9 +50,10 @@ namespace coup {
         if (this->currGame.turn() != this->playerName) {
             throw std::runtime_error("Action out of turn.");
         }
-
-        p.coinsAmount--;
-        this->coinsAmount++;
+        if (p.getRole() != "General"){
+            p.coinsAmount--;
+            this->coinsAmount++;
+        }
 
         std::cout << "other player coins: " << p.coinsAmount << std::endl;
         std::cout << "this player coins: " << this->coinsAmount << std::endl;
@@ -90,7 +91,7 @@ namespace coup {
         if (Baron* b = dynamic_cast<Baron*>(&p)){
             b->compensation();
         }
-        //this->currGame.passTurns();
+        this->currGame.passTurns();
 
     }
 
@@ -105,20 +106,23 @@ namespace coup {
         if (this->coins() < 7) {
             throw std::invalid_argument("Player must have 7 coins to use the Coup action.");
         }
+        std::cout << "Turn before coup:" << this->currGame.getCurrPlayer() << std::endl;
 
         // Execute the coup action by removing the player and passing turns
-        this->currGame.removePlayer(player.playerName);  
         this->coinsAmount -= 7;  
+        this->currGame.moveTurnTo("General", player);
+        if (!player.undoCoup){
+            this->currGame.removePlayer(player.playerName);  
+            // Mark the player as dead
+            player.isAlive = false;
 
-        // Remove this
-        std::cout << "After coup, this player coins: " << this->coins() << std::endl;
-        
-        // Mark the player as dead
-        player.isAlive = false;
+        }
+        std::cout << "Turn before passTurns:" << this->currGame.getCurrPlayer() << std::endl;
         this->currGame.passTurns();
+        std::cout << "Turn after passTurns:" << this->currGame.getCurrPlayer() << std::endl;
+
         std::cout << "Turn passed after coup." << std::endl;
 
-        // Reset the sanctioned status
         this->isSanctioned = false;
     }
 
@@ -152,7 +156,10 @@ namespace coup {
 
 
     bool Player::undo(Player& player){
-        return true;
+        return false;
     }
 
+    void Player::setUndoCoup(bool undo){
+        this->undoCoup = undo;
+    }
 }
