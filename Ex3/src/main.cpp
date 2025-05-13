@@ -7,90 +7,104 @@
 
 #include "Game.hpp"
 #include "Player.hpp"
+#include "Governor.hpp"
+#include "Baron.hpp"
 
 
 using namespace coup;
 
 int main() {
     Game g;
-    Player p(g, "shani", "spy");
-    Player p2(g, "noa", "spy");
+    //Player p(g, "shani", "spy");
+    //Player bar(g, "noa", "spy");
 
-    g.addPlayer(&p);
-    g.addPlayer(&p2);
+    Governor gov(g,"shani");
+    Baron bar(g, "noa");
+
+
+
+    g.addPlayer(&gov);
+    g.addPlayer(&bar);
 
     g.startGame();
 
     std::cout << "Before action, current player: " << g.turn() << std::endl;
     
     // gather test
-    p.gather();   // shani
+    gov.gather();   // shani
     std::cout << "After gather, current player: " << g.turn() << std::endl;
 
-    p2.gather();  // noa
-    p.gather();   // shani
-    p2.gather();  // noa
+    bar.gather();  // noa
 
+    gov.gather();   // shani
+    bar.gather();  // noa
+
+    std::cout << "Befor tax, coins: " << gov.coins() << std::endl;
     // tax test
-    p.tax();      // shani
+    gov.tax();      // shani
+    std::cout << "After tax, coins: " << gov.coins() << std::endl;
 
     // arrest test
-    p2.gather();  // noa (coins = 3)
-    p.arrest(p2); // shani steals 1 from p2
+    bar.gather();  // noa (coins = 3)
+    gov.arrest(bar); // shani steals 1 from p2
 
-    std::cout << "Shani coins: " << p.coins() << std::endl;
-    std::cout << "Noa coins: " << p2.coins() << std::endl;
+    std::cout << "Shani coins: " << gov.coins() << std::endl;
+    std::cout << "Noa coins: " << bar.coins() << std::endl;
 
     // sanction test (shani sanctions noa)
-    p.sanction(p2);
+    gov.sanction(bar);
     std::cout << "Shani sanctioned Noa." << std::endl;
 
     // try to gather with sanctioned player (should do nothing)
     try {
-        p2.gather(); // Noa is sanctioned → no coin should be added
-        std::cout << "Noa coins (should be unchanged): " << p2.coins() << std::endl;
+        bar.gather(); // Noa is sanctioned → no coin should be added
+        std::cout << "Noa coins (should be unchanged): " << bar.coins() << std::endl;
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;
     }
 
     // bribe test (fail: not enough coins)
     try {
-        p2.bribe();  // Should throw since noa has <4 coins
+        bar.bribe();  // Should throw since noa has <4 coins
     } catch (const std::exception& e) {
         std::cerr << "Bribe failed as expected: " << e.what() << std::endl;
     }
 
     // make sure turn rotation still works after sanction
-    p2.gather();   // noa
-    std::cout << "Noa coins (should be unchanged): " << p2.coins() << std::endl;
+    bar.gather();   // noa
+    std::cout << "Noa coins (should be unchanged): " << bar.coins() << std::endl;
     std::cout << "Current player: " << g.turn() << std::endl;
 
-    std::cout << "is sanctioned: " <<  p2.getSan() << std::endl;
+    std::cout << "is sanctioned: " <<  bar.getSan() << std::endl;
 
-    p2.arrest(p); // noa
+    bar.arrest(gov); // noa
     
-    std::cout << "is sanctioned: " <<  p2.getSan() << std::endl;
+    std::cout << "is sanctioned: " <<  bar.getSan() << std::endl;
 
 
     std::cout << "Current player: " << g.turn() << std::endl;
 
-    p.gather(); // shani
+    gov.gather(); // shani
 
     std::cout << "Current player: " << g.turn() << std::endl;
 
-    p2.gather();
+    bar.gather();
 
-    p.gather(); // shani
+    gov.gather(); // shani
 
-    p2.gather();
+    bar.gather();
 
-    p.gather(); // shani
+    gov.gather(); // shani
 
-    p2.gather();
+    bar.gather();
 
-    p.gather(); // shani
+    gov.gather(); // shani
 
-    p2.gather();
+    bar.gather();
+
+    std::cout << "Baron before sanction, coins: " << bar.coins() << std::endl;
+    gov.sanction(bar);
+    std::cout << "Baron after sanction, coins: " << bar.coins() << std::endl;
 
     try {
         g.winner();
@@ -99,19 +113,19 @@ int main() {
     }
     
 
-    std::cout << "is alive before coup: " << p.getAlive() << std::endl;
+    std::cout << "is alive before coup: " << gov.getAlive() << std::endl;
     
     try {
-        p2.coup(p);
+        bar.coup(gov);
     } catch (const std::exception& e) {
         std::cerr << "Coup failed: " << e.what() << std::endl;
     }
 
-    std::cout << "is alive after coup: " << p.getAlive() << std::endl;
+    std::cout << "is alive after coup: " << gov.getAlive() << std::endl;
 
 
     try {
-        p.gather();
+        gov.gather();
     } catch (const std::exception& e) {
         std::cerr << "Gather failed as expected: " << e.what() << std::endl;
     }

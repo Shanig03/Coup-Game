@@ -2,7 +2,7 @@
 
 namespace coup {
 
-    Governor::Governor(Game& g, std::string& name) : Player(g, name, "Governor"){}
+    Governor::Governor(Game& g, const std::string& name) : Player(g, name, "Governor"){}
 
     void Governor::tax(){
         if (!this->isAlive){
@@ -29,6 +29,7 @@ namespace coup {
         // Need to add the option to choose if to undo tax action
         player.decreaseCoins(2);
 
+        return true;
     }
 
 }

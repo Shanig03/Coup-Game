@@ -9,7 +9,7 @@ namespace coup {
     class Governor : public Player{
 
         public:
-        Governor(Game& g, std::string& name);
+        Governor(Game& g, const std::string& name);
 
         void tax() override;
 

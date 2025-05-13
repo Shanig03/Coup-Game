@@ -1,6 +1,8 @@
 #include "Player.hpp"
 #include "Game.hpp"
 
+#include "Baron.hpp"
+
 namespace coup {
 
     // Constructor definition in Player.cpp
@@ -70,6 +72,8 @@ namespace coup {
         if (this->coinsAmount < 4){
             throw std::invalid_argument("Player must have 4 coins to use the Bribe action.");
         }
+
+        this->currGame.passTurns();
     }
 
     void Player::sanction(Player& p){
@@ -82,6 +86,12 @@ namespace coup {
 
         this->coinsAmount -=3;
         p.isSanctioned = true;
+
+        if (Baron* b = dynamic_cast<Baron*>(&p)){
+            b->compensation();
+        }
+        //this->currGame.passTurns();
+
     }
 
 
@@ -141,6 +151,8 @@ namespace coup {
     }
 
 
-    bool Player::undo(Player& player){}
+    bool Player::undo(Player& player){
+        return true;
+    }
 
 }

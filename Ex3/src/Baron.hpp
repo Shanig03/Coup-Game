@@ -7,9 +7,11 @@ namespace coup {
     class Baron : public Player{
 
         public:
-        Baron(Game g, string name);
+        Baron(Game& g, const std::string& name);
 
         void invest();
+
+        void compensation(); // Compensation for sanction
     };
 
 }

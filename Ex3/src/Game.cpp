@@ -139,8 +139,8 @@ namespace coup {
             }
         }
     
-        // Always return turn to next alive player after the original actor
-        for (size_t i = 1; i <= playersList.size(); ++i) {
+        // Always return turn to original actor and if not alive, pass the turn to the next alive player 
+        for (size_t i = 0; i <= playersList.size(); ++i) {
             size_t idx = (originalIndex + i) % playersList.size();
             if (playersList[idx]->getAlive()) {
                 this->currPlayer = playersList[idx]->getName();
@@ -151,6 +151,10 @@ namespace coup {
         throw std::runtime_error("No alive player to pass turn to.");
     }
 
+
+    std::string Game::getCurrPlayer(){
+        return this->currPlayer;
+    }
 
 
 }
