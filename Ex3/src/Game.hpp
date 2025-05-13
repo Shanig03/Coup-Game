@@ -39,6 +39,8 @@ namespace coup {
 
         std::string getCurrPlayer();
 
+        std::vector<Player*> assignRandomRoles(const std::vector<std::string>& playerNames);
+
     };
 
 }
