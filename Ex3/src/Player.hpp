@@ -53,6 +53,9 @@ namespace coup {
 
         void setUndoCoup(bool undo);
 
+        bool hasAnotherTurn();
+        
+        void setAnotherTurn(bool state);
 
 
     };

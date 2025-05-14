@@ -47,16 +47,34 @@ namespace coup {
     void Game::passTurns(){
         // Find current player's index
         size_t index = 0;
+        Player* current = nullptr;
+
         for (size_t i = 0; i < playersList.size(); ++i) {
             if (playersList[i]->getName() == currPlayer) {
                 index = i;
+                current = playersList[i];
                 break;
             }
         }
 
+        if (current == nullptr) {
+            throw std::runtime_error("Current player not found.");
+        }
+
+        // Check if current player has anotherTurn flag set
+        if (current->hasAnotherTurn()) {
+            std::cout << "Player " << current->getName() << " has another turn.\n";
+            current->setAnotherTurn(false);
+            return; // Don't change turn
+        }
+
+        // Normal turn passing
         size_t total = playersList.size();
         for (size_t offset = 1; offset <= total; ++offset) {
             Player* nextPlayer = playersList[(index + offset) % total];
+            std::cout << "Checking player: " << nextPlayer->getName()
+                    << ", alive? " << nextPlayer->getAlive() << std::endl;
+
             if (nextPlayer->getAlive()) {
                 currPlayer = nextPlayer->getName();
                 return;
@@ -125,11 +143,13 @@ namespace coup {
     }
 
 
+    
+
+/* 
     std::string Game::getCurrPlayer(){
         return this->currPlayer;
     }
 
-/* 
     std::vector<Player*> Game::assignRandomRoles(const std::vector<std::string>& playerNames) {        
         std::vector<Player*> players;
         std::vector<std::string> roles = {"Spy", "Judge", "Baron", "General", "Merchant", "Governor"};

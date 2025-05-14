@@ -37,7 +37,7 @@ namespace coup {
 
         void moveTurnTo(const std::string& role, Player& p);
 
-        std::string getCurrPlayer();
+        //std::string getCurrPlayer();
 
         std::vector<Player*> assignRandomRoles(const std::vector<std::string>& playerNames);
 

@@ -2,6 +2,7 @@
 #include "Game.hpp"
 
 #include "Baron.hpp"
+#include "Merchant.hpp"
 
 namespace coup {
 
@@ -11,16 +12,20 @@ namespace coup {
     isAlive(true), anotherTurn(false), undoCoup(false) {}
 
 
-
     void Player::gather(){
         if (!this->isAlive){
             throw std::runtime_error("Player is out of the game.");
         }
+
         if (this->currGame.turn() != this->playerName) {
             throw std::runtime_error("Action out of turn.");
         }
 
         if(!isSanctioned){
+            if (Merchant* m = dynamic_cast<Merchant*>(this)){
+                m->extraCoin();
+            }
+            
             this->coinsAmount++; // Adds 1 coin to the player
             std::cout << coinsAmount << std::endl;
             this->currGame.passTurns();
@@ -36,6 +41,9 @@ namespace coup {
             throw std::runtime_error("Action out of turn.");
         }
         if(!isSanctioned){
+            if (Merchant* m = dynamic_cast<Merchant*>(this)){
+                m->extraCoin();
+            }
             this->coinsAmount += 2; // Adds 2 coins to the player
             this->currGame.moveTurnTo("Governor", *this);
             std::cout << coinsAmount << std::endl;
@@ -44,22 +52,22 @@ namespace coup {
     }
 
     void Player::arrest(Player& p){
-        if (!this->isAlive){
-            throw std::runtime_error("Player is out of the game.");
-        }
-        if (this->currGame.turn() != this->playerName) {
-            throw std::runtime_error("Action out of turn.");
-        }
+        if (!this->isAlive){ throw std::runtime_error("Player is out of the game.");}
+        if (this->currGame.turn() != this->playerName) {throw std::runtime_error("Action out of turn.");}
         if (p.getRole() != "General"){
-            p.coinsAmount--;
-            this->coinsAmount++;
+            if (Merchant* m = dynamic_cast<Merchant*>(this)){
+                m->extraCoin();
+                m->merchantGotArrested();
+            } else if (p.getRole() != "Merchant"){
+                p.coinsAmount--;
+                this->coinsAmount++; 
+            }            
+                       
         }
+        this->isSanctioned = false;
 
-        std::cout << "other player coins: " << p.coinsAmount << std::endl;
-        std::cout << "this player coins: " << this->coinsAmount << std::endl;
         this->currGame.passTurns();
 
-        this->isSanctioned = false;
     }
 
     int Player::coins() const{
@@ -73,8 +81,12 @@ namespace coup {
         if (this->coinsAmount < 4){
             throw std::invalid_argument("Player must have 4 coins to use the Bribe action.");
         }
+        this->coinsAmount -= 4;
+        this->anotherTurn = true;
 
-        this->currGame.passTurns();
+        // No need to passTurns() because the player have 2 more action, 
+        // and only at the seconed one the turn will pass to the next player.
+    
     }
 
     void Player::sanction(Player& p){
@@ -85,8 +97,15 @@ namespace coup {
             throw std::invalid_argument("Player must have 3 coins to use the Sanction action.");
         }
 
+        if (Merchant* m = dynamic_cast<Merchant*>(&p)){
+            m->extraCoin();
+        }        
         this->coinsAmount -=3;
         p.isSanctioned = true;
+        
+        if (p.getRole() == "Judge"){
+            this->coinsAmount--;
+        }
 
         if (Baron* b = dynamic_cast<Baron*>(&p)){
             b->compensation();
@@ -106,10 +125,13 @@ namespace coup {
         if (this->coins() < 7) {
             throw std::invalid_argument("Player must have 7 coins to use the Coup action.");
         }
-        std::cout << "Turn before coup:" << this->currGame.getCurrPlayer() << std::endl;
 
         // Execute the coup action by removing the player and passing turns
-        this->coinsAmount -= 7;  
+        this->coinsAmount -= 7; 
+        if (Merchant* m = dynamic_cast<Merchant*>(this)){
+            m->extraCoin();
+        }
+
         this->currGame.moveTurnTo("General", player);
         if (!player.undoCoup){
             this->currGame.removePlayer(player.playerName);  
@@ -117,9 +139,7 @@ namespace coup {
             player.isAlive = false;
 
         }
-        std::cout << "Turn before passTurns:" << this->currGame.getCurrPlayer() << std::endl;
         this->currGame.passTurns();
-        std::cout << "Turn after passTurns:" << this->currGame.getCurrPlayer() << std::endl;
 
         std::cout << "Turn passed after coup." << std::endl;
 
@@ -162,4 +182,14 @@ namespace coup {
     void Player::setUndoCoup(bool undo){
         this->undoCoup = undo;
     }
+
+    bool Player::hasAnotherTurn(){
+        return this->anotherTurn;
+    }
+
+    void Player::setAnotherTurn(bool state){
+        this->anotherTurn = state;
+    }
+
+
 }
