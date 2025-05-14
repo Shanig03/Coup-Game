@@ -17,7 +17,7 @@ namespace coup {
         bool isSanctioned; // Is plater got sanctioned
         bool isAlive; // Is plater "alive"
         bool anotherTurn; // Is player should get another turn
-        bool undoCoup;
+        bool undoCoup; // If General choose to undo a coup
 
         public:
         Player(Game& game, const std::string& name, const std::string& role);

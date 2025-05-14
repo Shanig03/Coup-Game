@@ -11,6 +11,7 @@
 #include "Baron.hpp"
 #include "General.hpp"
 #include "Merchant.hpp"
+#include "Judge.hpp"
 
 using namespace coup;
 
@@ -18,7 +19,7 @@ int main() {
     Game g;
     Governor gov(g, "shani");
     Baron bar(g, "noa");
-    Merchant gen(g, "shir");
+    Judge gen(g, "shir");
 
     g.addPlayer(&gov);
     g.addPlayer(&bar);
@@ -30,6 +31,31 @@ int main() {
         std::cout << s << std::endl;
     }
 
+    gov.gather();
+    bar.gather();
+    gen.gather();
+
+    gov.gather();
+    bar.gather();
+    gen.gather();
+
+    gov.gather();
+    bar.gather();
+    gen.gather();
+
+    gov.gather();
+    bar.gather();
+    gen.gather();
+
+    std::cout << "gov coins before bribe:  " << gov.coins() << std::endl;
+    gov.bribe();
+    std::cout << "gov coins after bribe:  " << gov.coins() << std::endl;
+    gov.gather();
+    gov.gather();
+    std::cout << "gov coins after turnes:  " << gov.coins() << std::endl;
+    bar.gather();
+    gen.gather();
+    /*
     // First round of gathers
     gov.gather(); bar.gather(); gen.gather();
 
@@ -106,5 +132,6 @@ int main() {
     gen.gather();
     std::cout << "gen coins : " << gen.coins() << std::endl;
 
+    */
     return 0;
 }
