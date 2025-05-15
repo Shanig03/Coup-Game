@@ -44,6 +44,10 @@ namespace coup {
         return this->currPlayer;
     }
 
+    /*
+    A function to pass the turnes by the order of the players list 
+    only for players that are still in the game
+    */
     void Game::passTurns(){
         // Find current player's index
         size_t index = 0;
@@ -60,7 +64,7 @@ namespace coup {
         if (current == nullptr) {
             throw std::runtime_error("Current player not found.");
         }
-
+        
         // Check if current player has anotherTurn flag set
         if (current->hasAnotherTurn()) {
             std::cout << "Player " << current->getName() << " has another turn.\n";
@@ -76,6 +80,14 @@ namespace coup {
                     << ", alive? " << nextPlayer->getAlive() << std::endl;
 
             if (nextPlayer->getAlive()) {
+                // In the start of each row the arrested bool will go back to false, so they can be arrested again.
+                if (((index + offset) % total) < index){
+                    for (size_t i = 0; i < playersList.size(); ++i) {
+                        playersList[i]->setArrested(false); // Reset to false
+                        
+                    }
+                }
+                
                 currPlayer = nextPlayer->getName();
                 return;
             }

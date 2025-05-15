@@ -28,6 +28,7 @@ namespace coup {
             
             this->coinsAmount++; // Adds 1 coin to the player
             std::cout << coinsAmount << std::endl;
+            this->arrestBlocked = false;
             this->currGame.passTurns();
         }
     
@@ -47,6 +48,7 @@ namespace coup {
             this->coinsAmount += 2; // Adds 2 coins to the player
             this->currGame.moveTurnTo("Governor", *this);
             std::cout << coinsAmount << std::endl;
+            this->arrestBlocked = false;
             this->currGame.passTurns();
         }
     }
@@ -54,6 +56,14 @@ namespace coup {
     void Player::arrest(Player& p){
         if (!this->isAlive){ throw std::runtime_error("Player is out of the game.");}
         if (this->currGame.turn() != this->playerName) {throw std::runtime_error("Action out of turn.");}
+        if (p.getArrested()){ 
+            std::cout << "Can't arrest the same player more then once in a row." << std::endl;
+            return;
+        }
+        if (this->arrestBlocked){ 
+            std::cout << "Arrest action blocked by the Spy, try again in your next turn." << std::endl;
+            return;
+        }
         if (p.getRole() != "General"){
             if (Merchant* m = dynamic_cast<Merchant*>(this)){
                 m->extraCoin();
@@ -62,7 +72,7 @@ namespace coup {
                 p.coinsAmount--;
                 this->coinsAmount++; 
             }            
-                       
+            p.setArrested(true); 
         }
         this->isSanctioned = false;
 
@@ -83,6 +93,7 @@ namespace coup {
         }
         this->coinsAmount -= 4;
         this->anotherTurn = true;
+        this->arrestBlocked = false;
         this->currGame.moveTurnTo("Judge", *this);
 
         // No need to passTurns() because the player have 2 more action, 
@@ -111,6 +122,7 @@ namespace coup {
         if (Baron* b = dynamic_cast<Baron*>(&p)){
             b->compensation();
         }
+        this->arrestBlocked = false;
         this->currGame.passTurns();
 
     }
@@ -143,7 +155,7 @@ namespace coup {
         this->currGame.passTurns();
 
         std::cout << "Turn passed after coup." << std::endl;
-
+        this->arrestBlocked = false;
         this->isSanctioned = false;
     }
 
@@ -192,5 +204,16 @@ namespace coup {
         this->anotherTurn = state;
     }
 
+    bool Player::getArrested(){
+        return this->arrested;
+    }
 
+    void Player::setArrested(bool state){
+        this->arrested = state;
+    }
+
+
+    void Player::setArrestBlocked(bool state){
+        this->arrestBlocked = state;
+    }
 }

@@ -12,6 +12,7 @@
 #include "General.hpp"
 #include "Merchant.hpp"
 #include "Judge.hpp"
+#include "Spy.hpp"
 
 using namespace coup;
 
@@ -19,7 +20,7 @@ int main() {
     Game g;
     Governor gov(g, "shani");
     Baron bar(g, "noa");
-    Judge gen(g, "shir");
+    Spy gen(g, "shir");
 
     g.addPlayer(&gov);
     g.addPlayer(&bar);
@@ -55,6 +56,38 @@ int main() {
     std::cout << "gov coins after turnes:  " << gov.coins() << std::endl;
     bar.gather();
     gen.gather();
+
+    std::cout << "gov coins before arrest:  " << gov.coins() << std::endl;
+    gov.arrest(gen);
+    std::cout << "gov coins after arrest:  " << gov.coins() << std::endl;
+
+    std::cout << "bar coins before arrest:  " << bar.coins() << std::endl;
+    bar.arrest(gen);
+    std::cout << "bar coins after arrest:  " << bar.coins() << std::endl;
+
+    bar.gather();
+    gen.gather();
+
+    std::cout << "gov coins before arrest:  " << gov.coins() << std::endl;
+    gov.arrest(gen);
+    std::cout << "gov coins after arrest:  " << gov.coins() << std::endl;    bar.gather();
+    gen.gather();
+
+    gov.gather();
+    bar.gather();
+    gen.blockArrest(gov); // Spy block gov from using arrest in his next turn.
+    gen.gather(); // It dosent count as a turn, so after the blocking he can have another turn.
+
+
+    gov.arrest(bar);
+    gov.gather();
+    bar.gather();
+    gen.gather();
+
+    gov.arrest(bar);
+    bar.gather();
+    gen.gather();
+
     /*
     // First round of gathers
     gov.gather(); bar.gather(); gen.gather();

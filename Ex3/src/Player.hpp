@@ -18,6 +18,8 @@ namespace coup {
         bool isAlive; // Is plater "alive"
         bool anotherTurn; // Is player should get another turn
         bool undoCoup; // If General choose to undo a coup
+        bool arrested; // Player who got arrested - stays true for the whole round
+        bool arrestBlocked; // Player cant use the arrst action until his next turn
 
         public:
         Player(Game& game, const std::string& name, const std::string& role);
@@ -57,6 +59,11 @@ namespace coup {
         
         void setAnotherTurn(bool state);
 
+        bool getArrested();
+        void setArrested(bool state);
+
+        bool getArrestBlocked();
+        void setArrestBlocked(bool state);
 
     };
 

@@ -15,7 +15,8 @@ namespace coup {
     }
 
     void Spy::blockArrest(Player& p){
-
+        p.setArrestBlocked(true);
+        std::cout << p.getName() << ", your arrest action is blocked until tour next turn." << std::endl;
     }
 
 
