@@ -2,67 +2,52 @@
 #include <iostream>
 #include <vector>
 #include "Button.hpp"
+#include "windowManager.hpp"
 
 int main() {
-    sf::RenderWindow window(sf::VideoMode(800, 600), "Coup Game");
 
-    // Load background texture
-    sf::Texture backgroundTexture;
-    if (!backgroundTexture.loadFromFile("background_image.png")) {
-        std::cerr << "Error loading background image!" << std::endl;
+    WindowManager wm(800, 600, "Coup Game");
+
+    if (!wm.loadBackground("background_image.png") || !wm.loadFont("AmericanCaptain-MdEY.otf"))
         return -1;
-    }
 
-    sf::Sprite background(backgroundTexture);
-    background.setScale(
-        static_cast<float>(window.getSize().x) / backgroundTexture.getSize().x,
-        static_cast<float>(window.getSize().y) / backgroundTexture.getSize().y
-    );
+    std::string playerName;
+    std::vector<std::string> players;
+    std::vector<sf::Text*> playerTexts;
 
-    // Load custom font (American Captain .otf)
-    sf::Font font;
-    if (!font.loadFromFile("AmericanCaptain-MdEY.otf")) {
-        std::cerr << "Error loading custom font!" << std::endl;
-        return -1;
-    }
-
-    // Input box
+    // Input box and input text
     sf::RectangleShape inputBox(sf::Vector2f(200, 40));
     inputBox.setFillColor(sf::Color(139, 69, 19));
     inputBox.setOutlineColor(sf::Color::Black);
     inputBox.setOutlineThickness(2);
     inputBox.setPosition(250, 180);
 
-    // Input text
-    sf::Text inputText("", font, 20);
+    sf::Text inputText("", wm.getFont(), 20);
     inputText.setPosition(260, 185);
     inputText.setFillColor(sf::Color::Black);
 
-    std::string playerName = "";
-    std::vector<std::string> players;
-    std::vector<sf::Text> playerTexts;
+    // Label
+    sf::Text* label = new sf::Text("Add Players", wm.getFont(), 50);
+    label->setPosition(295, 60);
+    label->setFillColor(sf::Color::White);
 
     // Buttons
-    Button addButton(460, 180, 100, 40, "Add");
-    addButton.setButtonColor(sf::Color::White);
-    addButton.setFont(font);
+    Button* addButton = new Button(460, 180, 100, 40, "Add");
+    addButton->setButtonColor(sf::Color::White);
+    addButton->setFont(wm.getFont());
 
-    Button startGameButton(350, 450, 100, 40, "Start Game");
-    startGameButton.setButtonColor(sf::Color::White);
-    startGameButton.setFont(font);
+    Button* startGameButton = new Button(350, 450, 100, 40, "Start Game");
+    startGameButton->setButtonColor(sf::Color::White);
+    startGameButton->setFont(wm.getFont());
 
-    // Label
-    sf::Text label("Add Players", font, 50);
-    label.setPosition(295, 60);
-    label.setFillColor(sf::Color::White);
+    wm.addDrawable(&inputBox);
+    wm.addText(&inputText);
+    wm.addText(label);
+    wm.addButton(addButton);
+    wm.addButton(startGameButton);
 
-    // Main loop
-    while (window.isOpen()) {
-        sf::Event event;
-        while (window.pollEvent(event)) {
-            if (event.type == sf::Event::Closed)
-                window.close();
-
+    wm.run(
+        [&](sf::Event& event) {
             if (event.type == sf::Event::TextEntered) {
                 if (event.text.unicode == 8 && !playerName.empty()) {
                     playerName.pop_back();
@@ -73,38 +58,31 @@ int main() {
             }
 
             if (event.type == sf::Event::MouseButtonPressed) {
-                auto mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+                auto mousePos = wm.getWindow().mapPixelToCoords(sf::Mouse::getPosition(wm.getWindow()));
 
-                if (addButton.isClicked(mousePos) && !playerName.empty()) {
+                if (addButton->isClicked(mousePos) && !playerName.empty()) {
                     players.push_back(playerName);
 
-                    sf::Text playerText(playerName, font, 24);
-                    playerText.setFillColor(sf::Color::White);
-                    playerText.setPosition(250, 240 + static_cast<int>(playerTexts.size()) * 30);
+                    sf::Text* playerText = new sf::Text(playerName, wm.getFont(), 24);
+                    playerText->setFillColor(sf::Color::White);
+                    playerText->setPosition(250, 240 + static_cast<int>(playerTexts.size()) * 30);
                     playerTexts.push_back(playerText);
+                    wm.addText(playerText);
 
                     playerName = "";
                     inputText.setString("");
                     std::cout << "Player added: " << players.back() << std::endl;
                 }
 
-                if (startGameButton.isClicked(mousePos)) {
+                if (startGameButton->isClicked(mousePos)) {
                     std::cout << "Starting game with " << players.size() << " players." << std::endl;
                 }
             }
+        },
+        []() {
+            // Optional logic updates
         }
-
-        window.clear();
-        window.draw(background);
-        window.draw(label);
-        window.draw(inputBox);
-        window.draw(inputText);
-        addButton.draw(window);
-        startGameButton.draw(window);
-        for (const auto& playerText : playerTexts)
-            window.draw(playerText);
-        window.display();
-    }
+    );
 
     return 0;
 }
