@@ -50,6 +50,10 @@ namespace coup {
 
         void assignRandomRoles(const std::vector<std::string>& playerNames);
 
+        Player* getCurrentPlayer();
+
+        std::vector<Player*> getPlayers();
+
     };
 
 }

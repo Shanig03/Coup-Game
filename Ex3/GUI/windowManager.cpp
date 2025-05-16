@@ -37,7 +37,9 @@ void WindowManager::addDrawable(sf::Drawable* drawable) {
     drawables.push_back(drawable);
 }
 
-void WindowManager::run(std::function<void(sf::Event&)> eventHandler, std::function<void()> logicHandler) {
+void WindowManager::run(std::function<void(sf::Event&)> eventHandler,
+                        std::function<void()> logicHandler,
+                        std::function<void(sf::RenderWindow&)> customDraw) {
     while (window.isOpen()) {
         sf::Event event;
         while (window.pollEvent(event)) {
@@ -53,9 +55,14 @@ void WindowManager::run(std::function<void(sf::Event&)> eventHandler, std::funct
         for (auto& d : drawables) window.draw(*d);
         for (auto& t : texts) window.draw(*t);
         for (auto& b : buttons) b->draw(window);
+
+        // 👇 Your custom drawing (e.g., player sf::Text objects)
+        customDraw(window);
+
         window.display();
     }
 }
+
 
 sf::Font& WindowManager::getFont() {
     return font;

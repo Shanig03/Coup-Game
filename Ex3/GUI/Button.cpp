@@ -20,8 +20,8 @@ void Button::setFont(const sf::Font& newFont) {
     sf::FloatRect shapeBounds = shape.getGlobalBounds();
 
     buttonText.setPosition(
-        shapeBounds.left + (shapeBounds.width - textBounds.width) / 2 - textBounds.left,
-        shapeBounds.top + (shapeBounds.height - textBounds.height) / 2 - textBounds.top
+        static_cast<int>(shapeBounds.left + (shapeBounds.width - textBounds.width) / 2 - textBounds.left),
+        static_cast<int>(shapeBounds.top + (shapeBounds.height - textBounds.height) / 2 - textBounds.top)
     );
 }
 

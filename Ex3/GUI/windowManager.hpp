@@ -18,8 +18,10 @@ public:
     void addText(sf::Text* text);
     void addDrawable(sf::Drawable* drawable);
     
-    void run(std::function<void(sf::Event&)> eventHandler, std::function<void()> logicHandler);
-
+    void run(std::function<void(sf::Event&)> eventHandler,
+            std::function<void()> logicHandler,
+            std::function<void(sf::RenderWindow&)> customDraw);
+    
     sf::Font& getFont();
     sf::RenderWindow& getWindow();
 

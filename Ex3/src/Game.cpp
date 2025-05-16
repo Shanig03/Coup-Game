@@ -192,4 +192,19 @@ namespace coup {
         }
     }
 
+    Player* Game::getCurrentPlayer(){
+        Player* curr;
+        for (int i = 0; i < this->playersList.size(); i++){
+            if (playersList[i]->getName() == this->currPlayer){
+                curr = playersList[i];
+            }
+        }
+        return curr;
+    }
+
+    std::vector<Player*> Game::getPlayers(){
+        return this->playersList;
+    }
+
+
 }
