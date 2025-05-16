@@ -12,6 +12,13 @@ namespace coup {
         this->playersList = std::vector<Player*>();
     }
 
+    Game::~Game() {
+        for (Player* p : playersList) {
+            delete p;
+        }
+        playersList.clear(); 
+    }
+
     void Game::addPlayer(Player* p){
         if (playersList.size() >= 6) {
             throw std::runtime_error("Can't add more than 6 players.");
@@ -151,6 +158,36 @@ namespace coup {
                 if (result) {
                     break;  // only break if someone actually undoes
                 }
+            }
+        }
+    }
+
+    void Game::assignRandomRoles(const std::vector<std::string>& playerNames) {
+        std::vector<std::string> roles = {"Governor", "Baron", "General", "Merchant", "Judge", "Spy"};
+
+        std::srand(static_cast<unsigned>(std::time(nullptr))); // Seed RNG
+
+        for (const std::string& name : playerNames) {
+            std::string role = roles[std::rand() % roles.size()];
+            Player* p = nullptr;
+
+            if (role == "Governor") {
+                p = new Governor(*this, name);
+            } else if (role == "Baron") {
+                p = new Baron(*this, name);
+            } else if (role == "General") {
+                p = new General(*this, name);
+            } else if (role == "Merchant") {
+                p = new Merchant(*this, name);
+            } else if (role == "Judge") {
+                p = new Judge(*this, name);
+            } else if (role == "Spy") {
+                p = new Spy(*this, name);
+            }
+
+            if (p != nullptr) {
+                this->addPlayer(p);
+                std::cout << "Assigned role " << role << " to player " << name << std::endl;
             }
         }
     }

@@ -262,11 +262,11 @@ namespace coup {
         this->coinsAmount -= newAmount;
     }
 
-    /*
+    
     bool Player::undo(Player& player){
         return false;
     }
-    */
+    
 
     /*
     Set the undoCoup state of the player.

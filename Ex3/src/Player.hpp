@@ -43,7 +43,7 @@ namespace coup {
 
         void startTurn(); // Helper function to chack the current turn and state of the player before playing.
 
-        virtual bool undo(Player& player) = 0; // "Abstract" function
+        virtual bool undo(Player& player); // "Abstract" function
 
 
         // Get and set functions

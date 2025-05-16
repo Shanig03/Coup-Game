@@ -13,6 +13,13 @@
 
 #include "Player.hpp"
 
+#include "Governor.hpp"
+#include "Baron.hpp"
+#include "General.hpp"
+#include "Merchant.hpp"
+#include "Judge.hpp"
+#include "Spy.hpp"
+
 namespace coup {
     class Player;
 
@@ -23,6 +30,7 @@ namespace coup {
 
         public:
         Game();
+        ~Game();
 
         const std::vector<std::string> players();
 
@@ -40,7 +48,7 @@ namespace coup {
 
         void moveTurnTo(const std::string& role, Player& p);
 
-        std::vector<Player*> assignRandomRoles(const std::vector<std::string>& playerNames);
+        void assignRandomRoles(const std::vector<std::string>& playerNames);
 
     };
 

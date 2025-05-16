@@ -1,11 +1,22 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <vector>
+
 #include "Button.hpp"
 #include "windowManager.hpp"
 
-int main() {
+#include "../src/Game.hpp"
+#include "../src/Player.hpp"
+#include "../src/Governor.hpp"
+#include "../src/Baron.hpp"
+#include "../src/General.hpp"
+#include "../src/Merchant.hpp"
+#include "../src/Judge.hpp"
+#include "../src/Spy.hpp"
 
+
+int main() {
+    coup::Game game1;
     WindowManager wm(800, 600, "Coup Game");
 
     if (!wm.loadBackground("background_image.png") || !wm.loadFont("AmericanCaptain-MdEY.otf"))
@@ -48,6 +59,9 @@ int main() {
 
     wm.run(
         [&](sf::Event& event) {
+            if (event.type == sf::Event::Closed) {
+                wm.getWindow().close();  // <-- close the window properly on close event
+            }
             if (event.type == sf::Event::TextEntered) {
                 if (event.text.unicode == 8 && !playerName.empty()) {
                     playerName.pop_back();
@@ -61,21 +75,32 @@ int main() {
                 auto mousePos = wm.getWindow().mapPixelToCoords(sf::Mouse::getPosition(wm.getWindow()));
 
                 if (addButton->isClicked(mousePos) && !playerName.empty()) {
-                    players.push_back(playerName);
+                    // Check if name already exists
+                    bool nameExists = std::find(players.begin(), players.end(), playerName) != players.end();
+                    
+                    if (!nameExists) {
+                        players.push_back(playerName);
 
-                    sf::Text* playerText = new sf::Text(playerName, wm.getFont(), 24);
-                    playerText->setFillColor(sf::Color::White);
-                    playerText->setPosition(250, 240 + static_cast<int>(playerTexts.size()) * 30);
-                    playerTexts.push_back(playerText);
-                    wm.addText(playerText);
+                        sf::Text* playerText = new sf::Text(playerName, wm.getFont(), 24);
+                        playerText->setFillColor(sf::Color::White);
+                        playerText->setPosition(250, 240 + static_cast<int>(playerTexts.size()) * 30);
+                        playerTexts.push_back(playerText);
+                        wm.addText(playerText);
+
+                        std::cout << "Player added: " << players.back() << std::endl;
+                    } else {
+                        std::cout << "Player name already exists: " << playerName << std::endl;
+                    }
 
                     playerName = "";
                     inputText.setString("");
-                    std::cout << "Player added: " << players.back() << std::endl;
                 }
+
 
                 if (startGameButton->isClicked(mousePos)) {
                     std::cout << "Starting game with " << players.size() << " players." << std::endl;
+                    game1.assignRandomRoles(players);
+                    game1.startGame();
                 }
             }
         },
@@ -83,6 +108,14 @@ int main() {
             // Optional logic updates
         }
     );
+
+    for (auto pt : playerTexts) {
+        delete pt;
+    }
+    delete label;
+    delete addButton;
+    delete startGameButton;
+
 
     return 0;
 }
