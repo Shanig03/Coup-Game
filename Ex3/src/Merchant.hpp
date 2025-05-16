@@ -1,3 +1,5 @@
+// Email: shanig7531@gmail.com
+
 #ifndef MERCHANT_HPP
 #define MERCHANT_HPP
 
@@ -16,8 +18,5 @@ namespace coup {
     };
 
 }
-
-
-
 
 #endif

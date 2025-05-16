@@ -1,3 +1,5 @@
+// Email: shanig7531@gmail.com
+
 #ifndef GENERAL_HPP
 #define GENERAL_HPP
 

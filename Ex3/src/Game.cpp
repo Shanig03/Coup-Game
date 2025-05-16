@@ -1,15 +1,16 @@
+// Email: shanig7531@gmail.com
+
 #include "Game.hpp"
 #include <random>
 #include <ctime>
 
-//#include "Governor.hpp"
-//#include "Baron.hpp"
-//#include "Spy.hpp"
-
 
 namespace coup {
 
-    Game::Game(){}
+    Game::Game(){
+        this->currPlayer = "";
+        this->playersList = std::vector<Player*>();
+    }
 
     void Game::addPlayer(Player* p){
         if (playersList.size() >= 6) {
@@ -153,41 +154,5 @@ namespace coup {
             }
         }
     }
-
-
-    
-
-/* 
-    std::string Game::getCurrPlayer(){
-        return this->currPlayer;
-    }
-
-    std::vector<Player*> Game::assignRandomRoles(const std::vector<std::string>& playerNames) {        
-        std::vector<Player*> players;
-        std::vector<std::string> roles = {"Spy", "Judge", "Baron", "General", "Merchant", "Governor"};
-        
-        std::srand(static_cast<unsigned>(std::time(nullptr)));
-
-        for (const std::string& name : playerNames) {
-            std::string role = roles[std::rand() % roles.size()];
-
-            if (role == "Spy") {
-                players.push_back(Spy(*this, name));
-            } else if (role == "Judge") {
-                players.push_back(Judge(*this, name));
-            } else if (role == "Baron") {
-                players.push_back(Baron(*this, name));
-            } else if (role == "General") {
-                players.push_back(General(*this, name));
-            } else if (role == "Merchant") {
-                players.push_back(Merchant(*this, name));
-            } else if (role == "Governor") {
-                players.push_back(Governor(*this, name));
-            }
-        }
-
-        return players;
-    }
-*/
 
 }

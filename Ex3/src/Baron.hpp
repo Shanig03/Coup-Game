@@ -1,3 +1,5 @@
+// Email: shanig7531@gmail.com
+
 #ifndef BARON_HPP
 #define BARON_HPP
 

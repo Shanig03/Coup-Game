@@ -1,3 +1,5 @@
+// Email: shanig7531@gmail.com
+
 #include "Governor.hpp"
 
 namespace coup {
@@ -5,12 +7,8 @@ namespace coup {
     Governor::Governor(Game& g, const std::string& name) : Player(g, name, "Governor"){}
 
     void Governor::tax(){
-        if (!this->isAlive){
-            throw std::runtime_error("Player is out of the game.");
-        }
-        if (this->currGame.turn() != this->getName()){
-            throw std::runtime_error("Can't play out of your turn.");
-        }
+        this->startTurn();
+    
         if(!this->isSanctioned){
             this->coinsAmount += 3; // Adds 3 coins to the Governor
             std::cout << coinsAmount << std::endl;

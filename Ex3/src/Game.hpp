@@ -1,5 +1,8 @@
+// Email: shanig7531@gmail.com
+
 #ifndef GAME_HPP
 #define GAME_HPP
+
 #include <vector>
 #include <iostream>
 #include <algorithm>
@@ -36,8 +39,6 @@ namespace coup {
         std::string winner();
 
         void moveTurnTo(const std::string& role, Player& p);
-
-        //std::string getCurrPlayer();
 
         std::vector<Player*> assignRandomRoles(const std::vector<std::string>& playerNames);
 

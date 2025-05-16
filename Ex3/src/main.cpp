@@ -1,3 +1,4 @@
+// Email: shanig7531@gmail.com
 
 #include <exception>
 #include <iostream>
@@ -87,6 +88,22 @@ int main() {
     gov.arrest(bar);
     bar.gather();
     gen.gather();
+
+    gov.gather();
+    bar.gather();
+    gen.gather();
+    std::cout << "bar coins:  " << bar.coins() << std::endl;
+
+    gov.gather();
+
+    try{
+        bar.gather();
+    }
+    catch(const std::exception& e){
+        std::cerr << e.what() << '\n';
+    }
+    bar.coup(gen);
+    
 
     /*
     // First round of gathers

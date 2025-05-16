@@ -1,3 +1,5 @@
+// Email: shanig7531@gmail.com
+
 #ifndef PLAYER_HPP
 #define PLAYER_HPP
 
@@ -35,9 +37,16 @@ namespace coup {
 
         virtual void arrest(Player& p);
 
-        virtual void sanction(Player& p);
+        void sanction(Player& p);
 
-        virtual void coup(Player& player);
+        void coup(Player& player);
+
+        void startTurn(); // Helper function to chack the current turn and state of the player before playing.
+
+        virtual bool undo(Player& player) = 0; // "Abstract" function
+
+
+        // Get and set functions
 
         bool getSan() const;
 
@@ -51,8 +60,6 @@ namespace coup {
 
         void decreaseCoins(int newAmount);
 
-        virtual bool undo(Player& player);
-
         void setUndoCoup(bool undo);
 
         bool hasAnotherTurn();
@@ -60,9 +67,9 @@ namespace coup {
         void setAnotherTurn(bool state);
 
         bool getArrested();
-        void setArrested(bool state);
 
-        bool getArrestBlocked();
+        void setArrested(bool state);
+        
         void setArrestBlocked(bool state);
 
     };

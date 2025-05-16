@@ -1,3 +1,5 @@
+// Email: shanig7531@gmail.com
+
 #include "Baron.hpp"
 
 namespace coup {
@@ -16,9 +18,6 @@ namespace coup {
     }
 
     void Baron::compensation(){
-        if (!this->isAlive){
-            throw std::runtime_error("This Baron is out of the game.");
-        }
         if (this->isSanctioned){
             this->coinsAmount++;
             std::cout << "The Baron got compensation for the sanction." << std::endl;

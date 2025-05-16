@@ -1,3 +1,5 @@
+// Email: shanig7531@gmail.com
+
 #ifndef JUDGE_HPP
 #define JUDGE_HPP
 
@@ -13,8 +15,5 @@ namespace coup {
     };
 
 }
-
-
-
 
 #endif

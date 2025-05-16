@@ -1,3 +1,5 @@
+// Email: shanig7531@gmail.com
+
 #include "Judge.hpp"
 
 namespace coup {
