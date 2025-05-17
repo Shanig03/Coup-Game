@@ -10,8 +10,11 @@ public:
 
     void draw(sf::RenderWindow& window);
     bool isClicked(const sf::Vector2f& mousePos);
-    void setButtonColor(const sf::Color& color);  // Setter to change the button color
+    void setButtonColor(const sf::Color& color); 
     void setFont(const sf::Font& newFont);
+    std::string getText() const;
+    void centerText();
+
 
 
 private:

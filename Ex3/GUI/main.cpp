@@ -55,6 +55,207 @@ void updatePlayerStatusTexts(
     }
 }
 
+void showArrestPopup(sf::Font& font, coup::Player* currentPlayer, const std::vector<coup::Player*>& players) {
+    // Increased height from 300 to 420 to fit 6 buttons comfortably (6 * 60 = 360 + extra for title)
+    sf::RenderWindow popup(sf::VideoMode(300, 420), "Choose Player to Arrest", sf::Style::Titlebar | sf::Style::Close);
+
+    std::vector<Button> playerButtons;
+    float x = 50.f;
+    float y = 60.f;  // start a bit lower to leave space for title
+    float buttonHeight = 40.f;
+    float buttonSpacing = 60.f;
+
+    for (coup::Player* p : players) {
+        if (p != currentPlayer && p->getAlive()) {
+            Button b(x, y, 200.f, buttonHeight, p->getName());  
+            b.setFont(font);
+            playerButtons.push_back(b);
+            y += buttonSpacing;  
+        }
+    }
+
+    sf::Text title("Choose a player to arrest", font, 24);
+    title.setFillColor(sf::Color::White);
+
+    // Center the title horizontally
+    sf::FloatRect titleBounds = title.getLocalBounds();
+    title.setOrigin(titleBounds.left + titleBounds.width / 2.f, titleBounds.top + titleBounds.height / 2.f);
+    title.setPosition(popup.getSize().x / 2.f, 25.f);  // Top middle with some margin
+
+    while (popup.isOpen()) {
+        sf::Event event;
+        while (popup.pollEvent(event)) {
+            if (event.type == sf::Event::Closed) {
+                popup.close();
+            }
+
+            if (event.type == sf::Event::MouseButtonPressed) {
+                auto mousePos = popup.mapPixelToCoords(sf::Mouse::getPosition(popup));
+                for (auto& btn : playerButtons) {
+                    if (btn.isClicked(mousePos)) {
+                        std::string selectedName = btn.getText();
+
+                        // Find the player with this name
+                        for (coup::Player* target : players) {
+                            if (target->getName() == selectedName) {
+                                currentPlayer->arrest(*target);
+                                break;
+                            }
+                        }
+
+                        popup.close(); // Close after selecting
+                        break;
+                    }
+                }
+            }
+        }
+
+        popup.clear(sf::Color(50, 50, 50));
+        popup.draw(title);
+        for (auto& btn : playerButtons) {
+            btn.draw(popup);
+        }
+        popup.display();
+    }
+}
+
+void showSanctionPopup(sf::Font& font, coup::Player* currentPlayer, const std::vector<coup::Player*>& players) {
+    // Increased height from 300 to 420 to fit 6 buttons comfortably (6 * 60 = 360 + extra for title)
+    sf::RenderWindow popup(sf::VideoMode(300, 420), "Choose Player to Sanction", sf::Style::Titlebar | sf::Style::Close);
+
+    std::vector<Button> playerButtons;
+    float x = 50.f;
+    float y = 60.f;  
+    float buttonHeight = 40.f;
+    float buttonSpacing = 60.f;
+
+    for (coup::Player* p : players) {
+        if (p != currentPlayer && p->getAlive()) {
+            Button b(x, y, 200.f, buttonHeight, p->getName());  
+            b.setFont(font);
+            playerButtons.push_back(b);
+            y += buttonSpacing;  
+        }
+    }
+
+    sf::Text title("Choose a player to Sanction", font, 24);
+    title.setFillColor(sf::Color::White);
+
+    // Center the title horizontally
+    sf::FloatRect titleBounds = title.getLocalBounds();
+    title.setOrigin(titleBounds.left + titleBounds.width / 2.f, titleBounds.top + titleBounds.height / 2.f);
+    title.setPosition(popup.getSize().x / 2.f, 25.f);  // Top middle with some margin
+
+    while (popup.isOpen()) {
+        sf::Event event;
+        while (popup.pollEvent(event)) {
+            if (event.type == sf::Event::Closed) {
+                popup.close();
+            }
+
+            if (event.type == sf::Event::MouseButtonPressed) {
+                auto mousePos = popup.mapPixelToCoords(sf::Mouse::getPosition(popup));
+                for (auto& btn : playerButtons) {
+                    if (btn.isClicked(mousePos)) {
+                        std::string selectedName = btn.getText();
+
+                        // Find the player with this name
+                        for (coup::Player* target : players) {
+                            if (target->getName() == selectedName) {
+                                try{
+                                    currentPlayer->sanction(*target);
+                                }
+                                catch(const std::exception& e){
+                                    std::cerr << e.what() << '\n';
+                                }
+                                break;
+                            }
+                        }
+
+                        popup.close(); // Close after selecting
+                        break;
+                    }
+                }
+            }
+        }
+
+        popup.clear(sf::Color(50, 50, 50));
+        popup.draw(title);
+        for (auto& btn : playerButtons) {
+            btn.draw(popup);
+        }
+        popup.display();
+    }
+}
+
+void showCoupPopup(sf::Font& font, coup::Player* currentPlayer, const std::vector<coup::Player*>& players) {
+    // Increased height from 300 to 420 to fit 6 buttons comfortably (6 * 60 = 360 + extra for title)
+    sf::RenderWindow popup(sf::VideoMode(300, 420), "Choose Player to Coup", sf::Style::Titlebar | sf::Style::Close);
+
+    std::vector<Button> playerButtons;
+    float x = 50.f;
+    float y = 60.f;  
+    float buttonHeight = 40.f;
+    float buttonSpacing = 60.f;
+
+    for (coup::Player* p : players) {
+        if (p != currentPlayer && p->getAlive()) {
+            Button b(x, y, 200.f, buttonHeight, p->getName());  
+            b.setFont(font);
+            playerButtons.push_back(b);
+            y += buttonSpacing;  
+        }
+    }
+
+    sf::Text title("Choose a player to Coup", font, 24);
+    title.setFillColor(sf::Color::White);
+
+    // Center the title horizontally
+    sf::FloatRect titleBounds = title.getLocalBounds();
+    title.setOrigin(titleBounds.left + titleBounds.width / 2.f, titleBounds.top + titleBounds.height / 2.f);
+    title.setPosition(popup.getSize().x / 2.f, 25.f);  // Top middle with some margin
+
+    while (popup.isOpen()) {
+        sf::Event event;
+        while (popup.pollEvent(event)) {
+            if (event.type == sf::Event::Closed) {
+                popup.close();
+            }
+
+            if (event.type == sf::Event::MouseButtonPressed) {
+                auto mousePos = popup.mapPixelToCoords(sf::Mouse::getPosition(popup));
+                for (auto& btn : playerButtons) {
+                    if (btn.isClicked(mousePos)) {
+                        std::string selectedName = btn.getText();
+
+                        // Find the player with this name
+                        for (coup::Player* target : players) {
+                            if (target->getName() == selectedName) {
+                                try{
+                                    currentPlayer->coup(*target);
+                                }
+                                catch(const std::exception& e){
+                                    std::cerr << e.what() << '\n';
+                                }
+                                break;
+                            }
+                        }
+
+                        popup.close(); // Close after selecting
+                        break;
+                    }
+                }
+            }
+        }
+
+        popup.clear(sf::Color(50, 50, 50));
+        popup.draw(title);
+        for (auto& btn : playerButtons) {
+            btn.draw(popup);
+        }
+        popup.display();
+    }
+}
 
 
 int main() {
@@ -200,10 +401,30 @@ int main() {
                                 if (action == "Gather") {
                                     currentPlayer->gather();
                                 }
-                                if (action == "Tax") {
-                                    currentPlayer->tax();
+                                if (action == "Tax") { // Not working perfect
+                                    currentPlayer->tax(); 
                                 }
-                                // You can add other action handlers here similarly
+                                if (action == "Bribe") { // Not working perfect
+                                    try{
+                                        currentPlayer->bribe();
+                                    }
+                                    catch(const std::exception& e){
+                                        std::cerr << e.what() << '\n';
+                                    }
+                                }
+                                if (action == "Arrest") {
+                                    std::vector<coup::Player*> players = game1.getPlayers();
+                                    showArrestPopup(gameWindow.getFont(), currentPlayer, players);
+                                }
+                                if (action == "Sanction") {
+                                    std::vector<coup::Player*> players = game1.getPlayers();
+                                    showSanctionPopup(gameWindow.getFont(), currentPlayer, players);
+                                }
+                                if (action == "Coup") {
+                                    currentPlayer->gather();
+                                    std::vector<coup::Player*> players = game1.getPlayers();
+                                    showCoupPopup(gameWindow.getFont(), currentPlayer, players);
+                                }
                             }
 
                         }
