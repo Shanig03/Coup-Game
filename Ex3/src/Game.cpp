@@ -162,6 +162,20 @@ namespace coup {
         }
     }
 
+    std::vector<Player*> Game::roleList(const std::string& role) {
+        std::vector<Player*> pList;
+        for (Player* candidate : playersList) {
+            if (!candidate->getAlive()) {
+                continue;
+            }
+
+            if (candidate->getRole() == role) {
+                pList.push_back(candidate);
+            }
+        }
+        return pList;
+    }
+
     void Game::assignRandomRoles(const std::vector<std::string>& playerNames) {
         std::vector<std::string> roles = {"Governor", "Baron", "General", "Merchant", "Judge", "Spy"};
 

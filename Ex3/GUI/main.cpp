@@ -257,12 +257,148 @@ void showCoupPopup(sf::Font& font, coup::Player* currentPlayer, const std::vecto
     }
 }
 
+bool showUndoPopup(sf::Font& font, coup::Player* player) {
+    sf::RenderWindow popup(sf::VideoMode(380, 180), "Undo Tax Action", sf::Style::Titlebar | sf::Style::Close);
+
+    Button undoBtn(50, 100, 80, 40, "Undo");
+    Button skipBtn(170, 100, 80, 40, "Skip");
+
+    undoBtn.setFont(font);
+    undoBtn.setButtonColor(sf::Color::Red);
+    skipBtn.setFont(font);
+    skipBtn.setButtonColor(sf::Color::Green);
+
+    sf::Text title("Player " + player->getName() + ", Do you want to undo the tax action?", font, 20);
+    title.setFillColor(sf::Color::White);
+
+    sf::FloatRect titleBounds = title.getLocalBounds();
+    title.setOrigin(titleBounds.left + titleBounds.width / 2.f, titleBounds.top + titleBounds.height / 2.f);
+    title.setPosition(popup.getSize().x / 2.f, 50.f);
+
+    while (popup.isOpen()) {
+        sf::Event event;
+        while (popup.pollEvent(event)) {
+            if (event.type == sf::Event::Closed) {
+                popup.close();
+                return false; // treat closed window as skip
+            }
+            if (event.type == sf::Event::MouseButtonPressed) {
+                auto mousePos = popup.mapPixelToCoords(sf::Mouse::getPosition(popup));
+                if (undoBtn.isClicked(mousePos)) {
+                    popup.close();
+                    return true; // undo chosen
+                }
+                if (skipBtn.isClicked(mousePos)) {
+                    popup.close();
+                    return false; // skip chosen
+                }
+            }
+        }
+
+        popup.clear(sf::Color(50, 50, 50));
+        popup.draw(title);
+        undoBtn.draw(popup);
+        skipBtn.draw(popup);
+        popup.display();
+    }
+
+    return false; // fallback
+}
+
+void processUndoForTax(sf::Font& font, coup::Game& game, coup::Player* currentPlayer) {
+    // Get list of players with the "Governor" role or the role that can undo tax
+    std::vector<coup::Player*> governors = game.roleList("Governor");
+
+    for (coup::Player* governor : governors) {
+        // Skip current player (usually can't undo own action)
+        if (governor == currentPlayer) continue;
+
+        bool undoChosen = showUndoPopup(font, governor);
+
+        if (undoChosen) {
+            coup::Governor* govRole = dynamic_cast<coup::Governor*>(governor);
+            try{
+                govRole->undo(*game.getCurrentPlayer());  // Call undo on that player
+            }
+            catch(const std::exception& e){
+                std::cerr << e.what() << '\n';
+            }
+            break; 
+        }
+    }
+}
+
+
+void showBlockArrestPopup(sf::Font& font, coup::Spy* currentPlayer, const std::vector<coup::Player*>& players) {
+    // Increased height from 300 to 420 to fit 6 buttons comfortably (6 * 60 = 360 + extra for title)
+    sf::RenderWindow popup(sf::VideoMode(300, 420), "Choose Player to Block from using arrest", sf::Style::Titlebar | sf::Style::Close);
+
+    std::vector<Button> playerButtons;
+    float x = 50.f;
+    float y = 60.f;  // start a bit lower to leave space for title
+    float buttonHeight = 40.f;
+    float buttonSpacing = 60.f;
+
+    for (coup::Player* p : players) {
+        if (p != currentPlayer && p->getAlive()) {
+            Button b(x, y, 200.f, buttonHeight, p->getName());  
+            b.setFont(font);
+            playerButtons.push_back(b);
+            y += buttonSpacing;  
+        }
+    }
+
+    sf::Text title("Choose a player to block arrest", font, 24);
+    title.setFillColor(sf::Color::White);
+
+    // Center the title horizontally
+    sf::FloatRect titleBounds = title.getLocalBounds();
+    title.setOrigin(titleBounds.left + titleBounds.width / 2.f, titleBounds.top + titleBounds.height / 2.f);
+    title.setPosition(popup.getSize().x / 2.f, 25.f);  // Top middle with some margin
+
+    while (popup.isOpen()) {
+        sf::Event event;
+        while (popup.pollEvent(event)) {
+            if (event.type == sf::Event::Closed) {
+                popup.close();
+            }
+
+            if (event.type == sf::Event::MouseButtonPressed) {
+                auto mousePos = popup.mapPixelToCoords(sf::Mouse::getPosition(popup));
+                for (auto& btn : playerButtons) {
+                    if (btn.isClicked(mousePos)) {
+                        std::string selectedName = btn.getText();
+
+                        // Find the player with this name
+                        for (coup::Player* target : players) {
+                            if (target->getName() == selectedName) {
+                                currentPlayer->blockArrest(*target);
+                                break;
+                            }
+                        }
+
+                        popup.close(); // Close after selecting
+                        break;
+                    }
+                }
+            }
+        }
+
+        popup.clear(sf::Color(50, 50, 50));
+        popup.draw(title);
+        for (auto& btn : playerButtons) {
+            btn.draw(popup);
+        }
+        popup.display();
+    }
+}
+
 
 int main() {
     coup::Game game1;
     WindowManager wm(800, 600, "Coup Game");
 
-    if (!wm.loadBackground("background_image.png") || !wm.loadFont("AmericanCaptain-MdEY.otf"))
+    if (!wm.loadBackground("../GUI/background_image.png") || !wm.loadFont("AmericanCaptain-MdEY.otf"))
         return -1;
 
     std::string playerName;
@@ -355,7 +491,7 @@ int main() {
             return -1;
 
         std::vector<Button*> actionButtons;
-        std::vector<std::string> actions = {"Gather", "Tax", "Arrest", "Bribe", "Sanction", "Coup"};
+        std::vector<std::string> actions = {"Gather", "Tax", "Arrest", "Bribe", "Sanction", "Coup", "Invest", "Block Arrest"};
 
         float buttonWidth = 100, buttonHeight = 40, spacingX = 40, spacingY = 30;
         float startX = (gameWindow.getWindow().getSize().x - (3 * buttonWidth + 2 * spacingX)) / 2;
@@ -371,6 +507,7 @@ int main() {
             gameWindow.addButton(actionBtn);
             actionButtons.push_back(actionBtn);
         }
+
 
         sf::Text turnLabel;
         turnLabel.setFont(gameWindow.getFont());
@@ -402,7 +539,10 @@ int main() {
                                     currentPlayer->gather();
                                 }
                                 if (action == "Tax") { // Not working perfect
-                                    currentPlayer->tax(); 
+                                    currentPlayer->tax();
+                                    // After tax action, ask players if they want to undo
+                                    processUndoForTax(gameWindow.getFont(), game1, currentPlayer);
+                                    game1.passTurns();
                                 }
                                 if (action == "Bribe") { // Not working perfect
                                     try{
@@ -425,6 +565,37 @@ int main() {
                                     std::vector<coup::Player*> players = game1.getPlayers();
                                     showCoupPopup(gameWindow.getFont(), currentPlayer, players);
                                 }
+                                auto mousePos = gameWindow.getWindow().mapPixelToCoords(sf::Mouse::getPosition(gameWindow.getWindow()));
+
+                                if (action == "Invest" && game1.getCurrentPlayer()->getRole() == "Baron") {                                    // Only Governor can invest, so just call invest action
+                                    try {
+                                        std::cout << "Invest Button clicked by baron.\n";
+                                        coup::Baron* bar = dynamic_cast<coup::Baron*>(game1.getCurrentPlayer());
+                                        if (bar) {
+                                            bar->invest();
+                                            std::cout << "Invest action executed by Governor.\n";
+                                            // advance turn or update state accordingly
+                                        }
+                                    } catch (const std::exception& e) {
+                                        std::cerr << "Invest failed: " << e.what() << "\n";
+                                    }
+                                }
+                                if (action == "Block Arrest" && game1.getCurrentPlayer()->getRole() == "Spy") {
+                                    // Only Spy can block arrest
+                                    try {
+                                        std::cout << "Block Arrest Button clicked.\n";
+
+                                        coup::Spy* spy = dynamic_cast<coup::Spy*>(game1.getCurrentPlayer());
+                                        if (spy) {
+                                            std::vector<coup::Player*> players = game1.getPlayers();
+                                            showBlockArrestPopup(gameWindow.getFont(), spy , players);
+                                            std::cout << "Block Arrest action executed by Spy.\n";
+                                            // advance turn or update state accordingly
+                                        }
+                                    } catch (const std::exception& e) {
+                                        std::cerr << "Block Arrest failed: " << e.what() << "\n";
+                                    }
+                                }
                             }
 
                         }
@@ -446,6 +617,7 @@ int main() {
                 updatePlayerStatusTexts(game1.getPlayers(), gameWindow.getFont(),
                         currentPlayer, isSpyTurn, playerStatusTexts,
                         static_cast<float>(gameWindow.getWindow().getSize().x));
+
 
             },
             [&](sf::RenderWindow& win) {

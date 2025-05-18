@@ -54,6 +54,8 @@ namespace coup {
 
         std::vector<Player*> getPlayers();
 
+        std::vector<Player*> roleList(const std::string& role);
+
     };
 
 }

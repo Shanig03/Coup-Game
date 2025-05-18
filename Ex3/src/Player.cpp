@@ -69,10 +69,10 @@ namespace coup {
             this->coinsAmount += 2; // Adds 2 coins to the player.
 
             // Ask all the Governors if they wants to undo this tax action.
-            this->currGame.moveTurnTo("Governor", *this);
+            //this->currGame.moveTurnTo("Governor", *this);
             std::cout << coinsAmount << std::endl; // Delete this
             this->arrestBlocked = false;
-            this->currGame.passTurns();
+            //this->currGame.passTurns();
         }
     }
 

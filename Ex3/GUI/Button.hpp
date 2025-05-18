@@ -14,6 +14,8 @@ public:
     void setFont(const sf::Font& newFont);
     std::string getText() const;
     void centerText();
+    //bool isEnabled() const;
+    //void setEnabled(bool e);
 
 
 
@@ -21,6 +23,7 @@ private:
     sf::RectangleShape shape;
     sf::Font font;
     sf::Text buttonText;
+    //bool enabled = true;
 };
 
 #endif
