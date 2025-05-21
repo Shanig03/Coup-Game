@@ -8,187 +8,328 @@
 
 using namespace coup;
 
-TEST_CASE("Player Constructor and Basic Getters") {
-    Game game;
-    Player p(game, "Alice", "Spy");
+TEST_CASE("Tests for the Player class"){
+    SUBCASE("Player Constructor and Basic Getters") {
+        Game game;
+        Player* p = new Player(game, "Alice", "Spy");    
 
-    CHECK(p.getName() == "Alice");
-    CHECK(p.getRole() == "Spy");
-    CHECK(p.getAlive() == true);
-    CHECK(p.getSan() == false);
-    CHECK(p.coins() == 0);
-}
+        CHECK(p->getName() == "Alice");
+        CHECK(p->getRole() == "Spy");
+        CHECK(p->getAlive() == true);
+        CHECK(p->getSan() == false);
+        CHECK(p->coins() == 0);
 
-TEST_CASE("setAlive and getAlive") {
-    Game game;
-    Player p(game, "Bob", "Judge");
-
-    p.setAlive(false);
-    CHECK_FALSE(p.getAlive());
-}
-
-TEST_CASE("setUndoCoup and setAnotherTurn") {
-    Game game;
-    Player p(game, "Cleo", "Governor");
-
-    p.setUndoCoup(true);
-    p.setAnotherTurn(true);
-
-    CHECK(p.hasAnotherTurn());
-}
-
-TEST_CASE("setArrested and getArrested") {
-    Game game;
-    Player p(game, "Dina", "General");
-
-    p.setArrested(true);
-    CHECK(p.getArrested() == true);
-}
-
-TEST_CASE("decreaseCoins") {
-    Game game;
-    Player p(game, "Eli", "Spy");
-
-    // manually increase coin amount for testing
-    for (int i = 0; i < 5; ++i) {
-        p.gather();
-    }
-    int prev = p.coins();
-    p.decreaseCoins(2);
-    CHECK(p.coins() == prev - 2);
-}
-
-TEST_CASE("Sanction action") {
-    Game game;
-    Player p1(game, "Sanctioner", "Spy");
-    Player p2(game, "Target", "Baron");
-
-    for (int i = 0; i < 3; ++i) {
-        p1.gather();
+        delete p;
     }
 
-    // pass turn until p1's
-    while (game.turn() != p1.getName()) {
-        game.passTurns();
+    SUBCASE("setAlive and getAlive") {
+        Game game;
+        Player* p = new Player(game, "Bob", "Judge");
+
+        p->setAlive(false);
+        CHECK_FALSE(p->getAlive());
+        delete p;
     }
 
-    p1.sanction(p2);
-    CHECK(p2.getSan() == true);
-}
+    SUBCASE("setUndoCoup and setAnotherTurn") {
+        Game game;
+        Player* p = new Player(game, "Cleo", "Governor");
 
-TEST_CASE("Bribe action") {
-    Game game;
-    Player p(game, "Briber", "Spy");
+        p->setUndoCoup(true);
+        p->setAnotherTurn(true);
 
-    for (int i = 0; i < 4; ++i) {
-        p.gather();
+        CHECK(p->hasAnotherTurn());
+        delete p;
+
     }
 
-    while (game.turn() != p.getName()) {
-        game.passTurns();
+    SUBCASE("setArrested and getArrested") {
+        Game game;
+        Player* p = new Player(game, "Dina", "General");
+
+        p->setArrested(true);
+        CHECK(p->getArrested() == true);
+        delete p;
     }
 
-    CHECK_NOTHROW(p.bribe());
-    CHECK(p.hasAnotherTurn() == true);
-}
+    SUBCASE("decreaseCoins") {
+        Game game;
+        Player* p = new Player(game, "Eli", "Spy");    
+        game.addPlayer(p);
+        game.startGame();
+        std::cout << game.getCurrentPlayer()->getName() << std::endl;
 
-TEST_CASE("Tax action") {
-    Game game;
-    Player p(game, "Taxer", "Spy");
+        for (int i = 0; i < 5; ++i) {
+            p->gather();
+        }
 
-    while (game.turn() != p.getName()) {
-        game.passTurns();
+        int prev = p->coins();
+        p->decreaseCoins(2);
+
+        std::cout << prev - 2 << std::endl;
+        CHECK(p->coins() == prev - 2);
+        delete p;
     }
 
-    p.tax();
-    CHECK(p.coins() == 2);
-}
+    SUBCASE("Sanction action") {
+        Game game;
+        Player* p1 = new Player(game, "Sanctioner", "Spy");
+        Player* p2 = new Player(game, "Target", "Baron");
+        game.addPlayer(p1);
+        game.addPlayer(p2);
+        game.startGame();
 
-TEST_CASE("Gather action") {
-    Game game;
-    Player p(game, "Gatherer", "Spy");
+        for (int i = 0; i < 3; ++i) {
+            p1->gather();
+            p2->gather();
+        }
 
-    while (game.turn() != p.getName()) {
-        game.passTurns();
+        p1->sanction(*p2);
+        int p2_coins = p2->coins();
+        CHECK(p2->getSan() == true);
+
+        // After sanction the player cannot use tax and gather, so his coins should stay the same.
+        p2->gather();
+        p2->tax();
+        CHECK(p2->coins() == p2_coins);
+        delete p1;
+        delete p2;
     }
 
-    p.gather();
-    CHECK(p.coins() == 1);
-}
+    SUBCASE("Sanction action with less that 3 coins") {
+        Game game;
+        Player* p1 = new Player(game, "CoupMaker", "Spy");
+        Player* p2 = new Player(game, "target", "Spy");        
+        game.addPlayer(p1);
+        game.addPlayer(p2);
+        game.startGame();
 
-TEST_CASE("Coup action with 7 coins") {
-    Game game;
-    Player p1(game, "CoupMaker", "Spy");
-    Player p2(game, "Target", "Merchant");
-
-    for (int i = 0; i < 7; ++i) {
-        p1.gather();
+        CHECK_THROWS_AS(p1->sanction(*p2), std::invalid_argument);
+        delete p1;
+        delete p2;
     }
 
-    while (game.turn() != p1.getName()) {
-        game.passTurns();
+    SUBCASE("Bribe action") {
+        Game game;
+        Player* p = new Player(game, "Briber", "Spy");
+        game.addPlayer(p);
+        game.startGame();
+
+        for (int i = 0; i < 4; ++i) {
+            p->gather();
+        }
+
+        CHECK_NOTHROW(p->bribe());
+        CHECK(p->hasAnotherTurn() == true);
+
+        p->tax();
+        p->gather();
+
+        // After 2 action AnotherTurn should be back to false.
+        CHECK(p->hasAnotherTurn() == false); 
+        delete p;
     }
 
-    p1.coup(p2);
-    CHECK_FALSE(p2.getAlive());
-    CHECK(p1.coins() == 0); // if merchant, may be 1 from extraCoin
-}
+    SUBCASE("Bribe action with less that 4 coins") {
+        Game game;
+        Player* p = new Player(game, "Briber", "Spy");
+        game.addPlayer(p);
+        game.startGame();
 
-TEST_CASE("Coup action throws without enough coins") {
-    Game game;
-    Player p1(game, "LowCoins", "Spy");
-    Player p2(game, "Target", "Merchant");
-
-    p1.gather();
-
-    while (game.turn() != p1.getName()) {
-        game.passTurns();
+        CHECK_THROWS_AS(p->bribe(), std::invalid_argument);
+        delete p;
     }
 
-    CHECK_THROWS_AS(p1.coup(p2), std::invalid_argument);
-}
+    SUBCASE("Tax action") {
+        Game game;
+        Player* p = new Player(game, "Taxer", "Spy");
+        game.addPlayer(p);
+        game.startGame();
 
-TEST_CASE("Arrest action sets target as arrested") {
-    Game game;
-    Player p1(game, "Arrester", "Spy");
-    Player p2(game, "Target", "Spy");
-
-    for (int i = 0; i < 2; ++i) {
-        p1.gather();
-        game.passTurns();
-        p2.gather();
-        game.passTurns();
+        p->tax();
+        CHECK(p->coins() == 2);
+        delete p;
     }
 
-    while (game.turn() != p1.getName()) {
-        game.passTurns();
+    SUBCASE("Gather action") {
+        Game game;
+        Player* p = new Player(game, "Gatherer", "Spy");
+        game.addPlayer(p);
+        game.startGame();
+
+        p->gather();
+        CHECK(p->coins() == 1);
+        delete p;
     }
 
-    p1.arrest(p2);
-    CHECK(p2.getArrested());
-}
+    SUBCASE("Arrest action") {
+        Game game;
+        Player* p1 = new Player(game, "CoupMaker", "Spy");
+        Player* p2 = new Player(game, "target", "Spy");
+        game.addPlayer(p1);
+        game.addPlayer(p2);
+        game.startGame();
 
-TEST_CASE("startTurn throws if not player's turn") {
-    Game game;
-    Player p1(game, "A", "Spy");
-    Player p2(game, "B", "Spy");
+        p1->gather();
+        p2->gather();
 
-    // Try to have p2 play when it’s p1’s turn
-    CHECK_THROWS_AS(p2.startTurn(), std::runtime_error);
-}
+        int p1_coins = p1->coins();
+        int p2_coins = p2->coins();
 
-TEST_CASE("startTurn throws if player has 10+ coins") {
-    Game game;
-    Player p(game, "Richie", "Spy");
+        p1->arrest(*p2);
 
-    for (int i = 0; i < 10; ++i) {
-        p.gather();
-        game.passTurns();
+        CHECK(p1->coins() == p1_coins + 1);
+        CHECK(p2->coins() == p2_coins - 1);
+        delete p1;
+        delete p2;
     }
 
-    while (game.turn() != p.getName()) {
-        game.passTurns();
+    SUBCASE("Arrest action with arrested") {
+        Game game;
+        Player* p1 = new Player(game, "CoupMaker", "Spy");
+        Player* p2 = new Player(game, "target", "Spy");
+        game.addPlayer(p1);
+        game.addPlayer(p2);
+        game.startGame();
+
+        p1->gather();
+        p2->gather();
+        p2->setArrested(true);
+        int p1_coins = p1->coins();
+        int p2_coins = p2->coins();
+
+        p1->arrest(*p2);
+
+        CHECK(p1->coins() == p1_coins);
+        CHECK(p2->coins() == p2_coins);
+        delete p1;
+        delete p2;
     }
 
-    CHECK_THROWS_AS(p.startTurn(), std::runtime_error);
+    SUBCASE("Arrest action with arrestBlocked") {
+        Game game;
+        Player* p1 = new Player(game, "CoupMaker", "Spy");
+        Player* p2 = new Player(game, "target", "Spy");
+        game.addPlayer(p1);
+        game.addPlayer(p2);
+        game.startGame();
+
+        p1->gather();
+        p2->gather();
+
+        p1->setArrestBlocked(true);
+        int p1_coins = p1->coins();
+        int p2_coins = p2->coins();
+
+        p1->arrest(*p2);
+
+        CHECK(p1->coins() == p1_coins);
+        CHECK(p2->coins() == p2_coins);
+        delete p1;
+        delete p2;
+    }
+
+    SUBCASE("Coup action with 7 coins") {
+        Game game;
+        Player* p1 = new Player(game, "CoupMaker", "Spy");
+        Player* p2 = new Player(game, "Merchant", "Merchant");
+        game.addPlayer(p1);
+        game.addPlayer(p2);
+        game.startGame();
+
+        for (int i = 0; i < 7; ++i) {
+            p1->gather();
+            p2->gather();
+        }
+
+        p1->coup(*p2);
+        CHECK_FALSE(p2->getAlive());
+        CHECK(p1->coins() == 0); 
+        delete p1;
+        delete p2;
+    }
+
+    SUBCASE("Coup action throws without enough coins") {
+        Game game;
+        Player* p1 = new Player(game, "LowCoins", "Spy");
+        Player* p2 = new Player(game, "Target", "Merchant");
+        game.addPlayer(p1);
+        game.addPlayer(p2);
+        game.startGame();
+
+        // Each one of the players have 1 coin from the gather action.
+        p1->gather();
+        p2->gather();
+
+        CHECK_THROWS_AS(p1->coup(*p2), std::invalid_argument);
+        delete p1;
+        delete p2;
+    }
+
+    SUBCASE("Coup action with undoCoup"){
+        Game game;
+        Player* p1 = new Player(game, "LowCoins", "Spy");
+        Player* p2 = new Player(game, "Target", "Merchant");
+        game.addPlayer(p1);
+        game.addPlayer(p2);
+        game.startGame();
+
+        for (int i = 0; i < 8; i++){
+            p1->gather();
+            p2->gather();
+        }
+
+        p2->setUndoCoup(true);
+        p1->coup(*p2);
+        CHECK(p2->getAlive() == true);
+        delete p1;
+        delete p2;
+    }
+
+    SUBCASE("Arrest action sets target as arrested") {
+        Game game;
+        Player* p1 = new Player(game, "Arrester", "Spy");
+        Player* p2 = new Player(game, "Target", "Spy");
+        game.addPlayer(p1);
+        game.addPlayer(p2);
+        game.startGame();
+
+        for (int i = 0; i < 2; ++i) {
+            p1->gather();
+            p2->gather();
+        }
+
+        p1->arrest(*p2);
+        CHECK(p2->getArrested());
+        delete p1;
+        delete p2;
+    }
+
+    SUBCASE("startTurn throws if not player's turn") {
+        Game game;
+        Player* p1 = new Player(game, "A", "Spy");
+        Player* p2 = new Player(game, "B", "Spy");
+        game.addPlayer(p1);
+        game.addPlayer(p2);
+        game.startGame();
+
+        // Try to have p2 play when it’s p1’s turn
+        CHECK_THROWS_AS(p2->startTurn(), std::runtime_error);
+        delete p1;
+        delete p2;
+    }
+
+    SUBCASE("startTurn throws if player has 10+ coins") {
+        Game game;
+        Player* p = new Player(game, "Richie", "Spy");
+        game.addPlayer(p);
+        game.startGame();
+
+        for (int i = 0; i < 10; ++i) {
+            p->gather();
+        }
+
+        CHECK_THROWS_AS(p->startTurn(), std::runtime_error);
+        delete p;
+    }
 }

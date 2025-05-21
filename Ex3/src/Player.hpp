@@ -25,8 +25,8 @@ namespace coup {
 
         public:
         Player(Game& game, const std::string& name, const std::string& role);
-        //~Player(); // Not sure if needed
-
+        virtual ~Player();
+        
         virtual void gather();
 
         virtual void tax();

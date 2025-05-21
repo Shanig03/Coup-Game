@@ -433,7 +433,7 @@ int main() {
     coup::Game game1;
     WindowManager wm(800, 600, "Coup Game");
 
-    if (!wm.loadBackground("../GUI/background_image.png") || !wm.loadFont("AmericanCaptain-MdEY.otf"))
+    if (!wm.loadBackground("GUI/background_image.png") || !wm.loadFont("GUI/AmericanCaptain-MdEY.otf"))
         return -1;
 
     std::string playerName;
@@ -600,7 +600,7 @@ int main() {
                                     std::vector<coup::Player*> players = game1.getPlayers();
                                     showCoupPopup(gameWindow.getFont(), currentPlayer, players, game1);
                                 }
-                                auto mousePos = gameWindow.getWindow().mapPixelToCoords(sf::Mouse::getPosition(gameWindow.getWindow()));
+                                //auto mousePos = gameWindow.getWindow().mapPixelToCoords(sf::Mouse::getPosition(gameWindow.getWindow()));
 
                                 if (action == "Invest" && game1.getCurrentPlayer()->getRole() == "Baron") {                                    // Only Governor can invest, so just call invest action
                                     try {

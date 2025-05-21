@@ -10,9 +10,10 @@ namespace coup {
 
     // Constructor
     Player::Player(Game& game, const std::string& name, const std::string& role): 
-    currGame(game), playerName(name), role(role), coinsAmount(0), isSanctioned(false), 
+    playerName(name),  coinsAmount(0), role(role), currGame(game), isSanctioned(false), 
     isAlive(true), anotherTurn(false), undoCoup(false) {}
 
+    coup::Player::~Player() = default;
 
     void Player::startTurn(){
         // Check if a player has 10 coins or more.
