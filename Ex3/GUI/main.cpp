@@ -61,6 +61,8 @@ void updatePlayerStatusTexts(
     }
 }
 
+
+
 void showArrestPopup(sf::Font& font, coup::Player* currentPlayer, const std::vector<coup::Player*>& players) {
     // Increased height from 300 to 420 to fit 6 buttons comfortably (6 * 60 = 360 + extra for title)
     sf::RenderWindow popup(sf::VideoMode(300, 420), "Choose Player to Arrest", sf::Style::Titlebar | sf::Style::Close);
@@ -553,6 +555,7 @@ int main() {
         gameWindow.addText(&turnLabel);
 
         std::vector<sf::Text*> playerStatusTexts;
+        bool winnerWindowOpened = false;
 
         gameWindow.run(
             [&](sf::Event& event) {
@@ -649,8 +652,44 @@ int main() {
                 updatePlayerStatusTexts(game1.getPlayers(), gameWindow.getFont(),
                         currentPlayer, isSpyTurn, playerStatusTexts,
                         static_cast<float>(gameWindow.getWindow().getSize().x));
+                
+                // WINNER CHECK
+                if (!winnerWindowOpened) {
+                    try {
+                        std::string winnerName = game1.winner(); // Will throw if no winner yet
 
+                        winnerWindowOpened = true;  // Prevent multiple popups
 
+                        // Create a popup window for the winner
+                        sf::RenderWindow winnerWindow(sf::VideoMode(600, 200), "Game Over");
+
+                        sf::Text text;
+                        text.setFont(gameWindow.getFont());
+                        text.setString("     Game Over!\nWinner: " + winnerName);
+                        text.setCharacterSize(35);
+                        text.setFillColor(sf::Color::White);
+                        sf::FloatRect rect = text.getLocalBounds();
+                        text.setOrigin(rect.width / 2, rect.height / 2);
+                        text.setPosition(300, 100);
+
+                        while (winnerWindow.isOpen()) {
+                            sf::Event e;
+                            while (winnerWindow.pollEvent(e)) {
+                                if (e.type == sf::Event::Closed) {
+                                    winnerWindow.close();
+                                    gameWindow.getWindow().close(); // Close the main window too
+                                }
+                            }
+
+                            winnerWindow.clear(sf::Color::Black);
+                            winnerWindow.draw(text);
+                            winnerWindow.display();
+                        }
+
+                    } catch (const std::exception& e) {
+                        // Do nothing - game not finished yet
+                    }
+                }
             },
             [&](sf::RenderWindow& win) {
                 for (auto txt : playerStatusTexts) {
@@ -659,6 +698,10 @@ int main() {
             }
         );
 
+        for (Button* btn : actionButtons) {
+            delete btn;
+        }
+        actionButtons.clear();
         for (auto btn : actionButtons) delete btn;
         for (auto txt : playerStatusTexts) delete txt;
     }
