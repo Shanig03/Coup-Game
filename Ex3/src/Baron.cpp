@@ -13,8 +13,11 @@ namespace coup {
             throw std::runtime_error("This Baron is out of the game.");
         }
 
-        this->coinsAmount += 3; // Invest 3 coins and gets 6 coins -> overall gets 3 new coins
-        std::cout << "The Baron invested 3 coins ang got 6 coins." << std::endl;
+        if (this->coins() >= 3){
+            this->coinsAmount += 3; // Invest 3 coins and gets 6 coins -> overall gets 3 new coins
+            std::cout << "The Baron invested 3 coins ang got 6 coins." << std::endl;
+            this->currGame.passTurns();
+        }
     }
 
     void Baron::compensation(){

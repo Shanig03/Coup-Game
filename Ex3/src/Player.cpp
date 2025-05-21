@@ -72,7 +72,7 @@ namespace coup {
             //this->currGame.moveTurnTo("Governor", *this);
             std::cout << coinsAmount << std::endl; // Delete this
             this->arrestBlocked = false;
-            //this->currGame.passTurns();
+            this->currGame.passTurns();
         }
     }
 
@@ -203,7 +203,7 @@ namespace coup {
         if (Merchant* m = dynamic_cast<Merchant*>(this)){m->extraCoin();}
 
         // Ask all the Generals if they wants to undo this coup action.
-        this->currGame.moveTurnTo("General", player); 
+        //this->currGame.moveTurnTo("General", player); 
 
         // Checks if any of the General wants to undo the coup.
         if (!player.undoCoup){

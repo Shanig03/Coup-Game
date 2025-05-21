@@ -40,7 +40,13 @@ void updatePlayerStatusTexts(
         std::string line = p->getName() + " | " + p->getRole() + " | Coins: " + coinsStr;
 
         sf::Text* text = new sf::Text(line, font, fontSize);
-        text->setFillColor(p->getName() == currentTurnPlayerName ? sf::Color::Yellow : sf::Color::White);
+        if (!p->getAlive()) {
+            text->setFillColor(sf::Color::Red);
+        } else if (p->getName() == currentTurnPlayerName) {
+            text->setFillColor(sf::Color::Yellow);
+        } else {
+            text->setFillColor(sf::Color::White);
+        }        
         text->setStyle(p->getName() == currentTurnPlayerName ? sf::Text::Bold : sf::Text::Regular);
 
         sf::FloatRect textBounds = text->getLocalBounds();
@@ -120,7 +126,6 @@ void showArrestPopup(sf::Font& font, coup::Player* currentPlayer, const std::vec
 }
 
 void showSanctionPopup(sf::Font& font, coup::Player* currentPlayer, const std::vector<coup::Player*>& players) {
-    // Increased height from 300 to 420 to fit 6 buttons comfortably (6 * 60 = 360 + extra for title)
     sf::RenderWindow popup(sf::VideoMode(300, 420), "Choose Player to Sanction", sf::Style::Titlebar | sf::Style::Close);
 
     std::vector<Button> playerButtons;
@@ -141,10 +146,9 @@ void showSanctionPopup(sf::Font& font, coup::Player* currentPlayer, const std::v
     sf::Text title("Choose a player to Sanction", font, 24);
     title.setFillColor(sf::Color::White);
 
-    // Center the title horizontally
     sf::FloatRect titleBounds = title.getLocalBounds();
     title.setOrigin(titleBounds.left + titleBounds.width / 2.f, titleBounds.top + titleBounds.height / 2.f);
-    title.setPosition(popup.getSize().x / 2.f, 25.f);  // Top middle with some margin
+    title.setPosition(popup.getSize().x / 2.f, 25.f);  
 
     while (popup.isOpen()) {
         sf::Event event;
@@ -188,77 +192,9 @@ void showSanctionPopup(sf::Font& font, coup::Player* currentPlayer, const std::v
     }
 }
 
-void showCoupPopup(sf::Font& font, coup::Player* currentPlayer, const std::vector<coup::Player*>& players) {
-    // Increased height from 300 to 420 to fit 6 buttons comfortably (6 * 60 = 360 + extra for title)
-    sf::RenderWindow popup(sf::VideoMode(300, 420), "Choose Player to Coup", sf::Style::Titlebar | sf::Style::Close);
 
-    std::vector<Button> playerButtons;
-    float x = 50.f;
-    float y = 60.f;  
-    float buttonHeight = 40.f;
-    float buttonSpacing = 60.f;
-
-    for (coup::Player* p : players) {
-        if (p != currentPlayer && p->getAlive()) {
-            Button b(x, y, 200.f, buttonHeight, p->getName());  
-            b.setFont(font);
-            playerButtons.push_back(b);
-            y += buttonSpacing;  
-        }
-    }
-
-    sf::Text title("Choose a player to Coup", font, 24);
-    title.setFillColor(sf::Color::White);
-
-    // Center the title horizontally
-    sf::FloatRect titleBounds = title.getLocalBounds();
-    title.setOrigin(titleBounds.left + titleBounds.width / 2.f, titleBounds.top + titleBounds.height / 2.f);
-    title.setPosition(popup.getSize().x / 2.f, 25.f);  // Top middle with some margin
-
-    while (popup.isOpen()) {
-        sf::Event event;
-        while (popup.pollEvent(event)) {
-            if (event.type == sf::Event::Closed) {
-                popup.close();
-            }
-
-            if (event.type == sf::Event::MouseButtonPressed) {
-                auto mousePos = popup.mapPixelToCoords(sf::Mouse::getPosition(popup));
-                for (auto& btn : playerButtons) {
-                    if (btn.isClicked(mousePos)) {
-                        std::string selectedName = btn.getText();
-
-                        // Find the player with this name
-                        for (coup::Player* target : players) {
-                            if (target->getName() == selectedName) {
-                                try{
-                                    currentPlayer->coup(*target);
-                                }
-                                catch(const std::exception& e){
-                                    std::cerr << e.what() << '\n';
-                                }
-                                break;
-                            }
-                        }
-
-                        popup.close(); // Close after selecting
-                        break;
-                    }
-                }
-            }
-        }
-
-        popup.clear(sf::Color(50, 50, 50));
-        popup.draw(title);
-        for (auto& btn : playerButtons) {
-            btn.draw(popup);
-        }
-        popup.display();
-    }
-}
-
-bool showUndoPopup(sf::Font& font, coup::Player* player) {
-    sf::RenderWindow popup(sf::VideoMode(380, 180), "Undo Tax Action", sf::Style::Titlebar | sf::Style::Close);
+bool showUndoPopup(sf::Font& font, coup::Player* player, std::string action) {
+    sf::RenderWindow popup(sf::VideoMode(380, 180), "Undo " + action + " Action", sf::Style::Titlebar | sf::Style::Close);
 
     Button undoBtn(50, 100, 80, 40, "Undo");
     Button skipBtn(170, 100, 80, 40, "Skip");
@@ -268,7 +204,7 @@ bool showUndoPopup(sf::Font& font, coup::Player* player) {
     skipBtn.setFont(font);
     skipBtn.setButtonColor(sf::Color::Green);
 
-    sf::Text title("Player " + player->getName() + ", Do you want to undo the tax action?", font, 20);
+    sf::Text title("Player " + player->getName() + ", Do you want to undo the " + action + " action?", font, 20);
     title.setFillColor(sf::Color::White);
 
     sf::FloatRect titleBounds = title.getLocalBounds();
@@ -305,6 +241,103 @@ bool showUndoPopup(sf::Font& font, coup::Player* player) {
     return false; // fallback
 }
 
+void processUndoForCoup(sf::Font& font, coup::Game& game, coup::Player* currentPlayer,coup::Player* targetPlayer) {
+    // Get list of players with the "General" role or the role that can undo coup
+    std::vector<coup::Player*> generals = game.roleList("General");
+
+    for (coup::Player* general : generals) {
+        // Skip current player (usually can't undo own action)
+        if (general == currentPlayer) continue;
+        if (general->coins() < 5){
+            std::cout << "General " << general->getName() << " dosent have 5 coins to undo Coup." << std::endl;
+            continue;
+        } 
+        
+        bool undoChosen = showUndoPopup(font, general , "Undo");
+
+        if (undoChosen) {
+            coup::General* genRole = dynamic_cast<coup::General*>(general);
+            try{
+                genRole->undo(*targetPlayer);  // Call undo on that player
+            }
+            catch(const std::exception& e){
+                std::cerr << e.what() << '\n';
+            }
+            break; 
+        }
+    }
+}
+
+void showCoupPopup(sf::Font& font, coup::Player* currentPlayer, const std::vector<coup::Player*>& players, coup::Game& game) {
+    sf::RenderWindow popup(sf::VideoMode(300, 420), "Choose Player to Coup", sf::Style::Titlebar | sf::Style::Close);
+
+    std::vector<Button> playerButtons;
+    float x = 50.f;
+    float y = 60.f;  
+    float buttonHeight = 40.f;
+    float buttonSpacing = 60.f;
+
+    for (coup::Player* p : players) {
+        if (p != currentPlayer && p->getAlive()) {
+            Button b(x, y, 200.f, buttonHeight, p->getName());  
+            b.setFont(font);
+            playerButtons.push_back(b);
+            y += buttonSpacing;  
+        }
+    }
+
+    sf::Text title("Choose a player to Coup", font, 24);
+    title.setFillColor(sf::Color::White);
+
+    sf::FloatRect titleBounds = title.getLocalBounds();
+    title.setOrigin(titleBounds.left + titleBounds.width / 2.f, titleBounds.top + titleBounds.height / 2.f);
+    title.setPosition(popup.getSize().x / 2.f, 25.f);  
+
+    while (popup.isOpen()) {
+        sf::Event event;
+        while (popup.pollEvent(event)) {
+            if (event.type == sf::Event::Closed) {
+                popup.close();
+            }
+
+            if (event.type == sf::Event::MouseButtonPressed) {
+                auto mousePos = popup.mapPixelToCoords(sf::Mouse::getPosition(popup));
+                for (auto& btn : playerButtons) {
+                    if (btn.isClicked(mousePos)) {
+                        std::string selectedName = btn.getText();
+
+                        // Find the player with this name
+                        for (coup::Player* target : players) {
+                            if (target->getName() == selectedName) {
+                                try{
+                                    processUndoForCoup(font, game, currentPlayer, target);
+                                    std::cout << "the player alive state is: " << target->getAlive() << std::endl;
+                                    currentPlayer->coup(*target);
+                                }
+                                catch(const std::exception& e){
+                                    std::cerr << e.what() << '\n';
+                                }
+                                break;
+                            }
+                        }
+
+                        popup.close();
+                        break;
+                    }
+                }
+            }
+        }
+
+        popup.clear(sf::Color(50, 50, 50));
+        popup.draw(title);
+        for (auto& btn : playerButtons) {
+            btn.draw(popup);
+        }
+        popup.display();
+    }
+}
+
+
 void processUndoForTax(sf::Font& font, coup::Game& game, coup::Player* currentPlayer) {
     // Get list of players with the "Governor" role or the role that can undo tax
     std::vector<coup::Player*> governors = game.roleList("Governor");
@@ -313,7 +346,7 @@ void processUndoForTax(sf::Font& font, coup::Game& game, coup::Player* currentPl
         // Skip current player (usually can't undo own action)
         if (governor == currentPlayer) continue;
 
-        bool undoChosen = showUndoPopup(font, governor);
+        bool undoChosen = showUndoPopup(font, governor , "Undo");
 
         if (undoChosen) {
             coup::Governor* govRole = dynamic_cast<coup::Governor*>(governor);
@@ -539,10 +572,10 @@ int main() {
                                     currentPlayer->gather();
                                 }
                                 if (action == "Tax") { // Not working perfect
-                                    currentPlayer->tax();
                                     // After tax action, ask players if they want to undo
                                     processUndoForTax(gameWindow.getFont(), game1, currentPlayer);
-                                    game1.passTurns();
+                                    currentPlayer->tax();
+                                    //game1.passTurns();
                                 }
                                 if (action == "Bribe") { // Not working perfect
                                     try{
@@ -561,9 +594,8 @@ int main() {
                                     showSanctionPopup(gameWindow.getFont(), currentPlayer, players);
                                 }
                                 if (action == "Coup") {
-                                    currentPlayer->gather();
                                     std::vector<coup::Player*> players = game1.getPlayers();
-                                    showCoupPopup(gameWindow.getFont(), currentPlayer, players);
+                                    showCoupPopup(gameWindow.getFont(), currentPlayer, players, game1);
                                 }
                                 auto mousePos = gameWindow.getWindow().mapPixelToCoords(sf::Mouse::getPosition(gameWindow.getWindow()));
 
@@ -573,7 +605,7 @@ int main() {
                                         coup::Baron* bar = dynamic_cast<coup::Baron*>(game1.getCurrentPlayer());
                                         if (bar) {
                                             bar->invest();
-                                            std::cout << "Invest action executed by Governor.\n";
+                                            std::cout << "Invest action executed by Baron.\n";
                                             // advance turn or update state accordingly
                                         }
                                     } catch (const std::exception& e) {

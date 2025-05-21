@@ -12,19 +12,13 @@ namespace coup {
         if (!player.getAlive()){
             throw std::runtime_error("Target player is out of the game.");
         }
-
-        // Need to make it fit the GUI
-        std::cout << this->getName() << ", " << player.getName() << " got Couped. "
-              << "Do you want to undo it? (y/n): ";
-        char choice;
-        std::cin >> choice;
-        if (choice == 'y' || choice == 'Y') {
-            this->decreaseCoins(5);
-            player.setUndoCoup(true);
-            return true;  // Indicates undo happened
+        if (this->coins() < 5){
+            throw std::runtime_error("General doesnt have 5 coins to undo.");
         }
         
-        return false;
+        this->decreaseCoins(5);
+        player.setUndoCoup(true);
+        return true;  // Indicates undo happened
 
     }
 
