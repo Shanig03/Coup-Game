@@ -49,8 +49,8 @@ tests: Tests/Tests.cpp Player.o Game.o Spy.o Merchant.o General.o Judge.o Baron.
 test: tests
 	./tests
 
-valgrind: Main
-	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes ./Main
+valgrind: Main test
+	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes ./tests
 
 clean:
 	rm -f *.o Main Test tests

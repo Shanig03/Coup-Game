@@ -72,6 +72,8 @@ namespace coup {
         
         void setArrestBlocked(bool state);
 
+        bool getArrestBlocked();
+
     };
 
 }

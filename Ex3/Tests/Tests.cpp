@@ -5,6 +5,7 @@
 #include "../src/Player.hpp"
 #include "../src/Merchant.hpp"
 #include "../src/Baron.hpp"
+#include "../src/Spy.hpp"
 
 using namespace coup;
 
@@ -68,7 +69,7 @@ TEST_CASE("Tests for the Player class"){
 
         std::cout << prev - 2 << std::endl;
         CHECK(p->coins() == prev - 2);
-        delete p;
+
     }
 
     SUBCASE("Sanction action") {
@@ -92,8 +93,7 @@ TEST_CASE("Tests for the Player class"){
         p2->gather();
         p2->tax();
         CHECK(p2->coins() == p2_coins);
-        delete p1;
-        delete p2;
+
     }
 
     SUBCASE("Sanction action with less that 3 coins") {
@@ -105,8 +105,7 @@ TEST_CASE("Tests for the Player class"){
         game.startGame();
 
         CHECK_THROWS_AS(p1->sanction(*p2), std::invalid_argument);
-        delete p1;
-        delete p2;
+
     }
 
     SUBCASE("Bribe action") {
@@ -127,7 +126,7 @@ TEST_CASE("Tests for the Player class"){
 
         // After 2 action AnotherTurn should be back to false.
         CHECK(p->hasAnotherTurn() == false); 
-        delete p;
+
     }
 
     SUBCASE("Bribe action with less that 4 coins") {
@@ -137,7 +136,6 @@ TEST_CASE("Tests for the Player class"){
         game.startGame();
 
         CHECK_THROWS_AS(p->bribe(), std::invalid_argument);
-        delete p;
     }
 
     SUBCASE("Tax action") {
@@ -148,7 +146,6 @@ TEST_CASE("Tests for the Player class"){
 
         p->tax();
         CHECK(p->coins() == 2);
-        delete p;
     }
 
     SUBCASE("Gather action") {
@@ -159,7 +156,6 @@ TEST_CASE("Tests for the Player class"){
 
         p->gather();
         CHECK(p->coins() == 1);
-        delete p;
     }
 
     SUBCASE("Arrest action") {
@@ -180,8 +176,7 @@ TEST_CASE("Tests for the Player class"){
 
         CHECK(p1->coins() == p1_coins + 1);
         CHECK(p2->coins() == p2_coins - 1);
-        delete p1;
-        delete p2;
+
     }
 
     SUBCASE("Arrest action with arrested") {
@@ -202,8 +197,7 @@ TEST_CASE("Tests for the Player class"){
 
         CHECK(p1->coins() == p1_coins);
         CHECK(p2->coins() == p2_coins);
-        delete p1;
-        delete p2;
+
     }
 
     SUBCASE("Arrest action with arrestBlocked") {
@@ -225,8 +219,7 @@ TEST_CASE("Tests for the Player class"){
 
         CHECK(p1->coins() == p1_coins);
         CHECK(p2->coins() == p2_coins);
-        delete p1;
-        delete p2;
+
     }
 
     SUBCASE("Coup action with 7 coins") {
@@ -245,8 +238,7 @@ TEST_CASE("Tests for the Player class"){
         p1->coup(*p2);
         CHECK_FALSE(p2->getAlive());
         CHECK(p1->coins() == 0); 
-        delete p1;
-        delete p2;
+
     }
 
     SUBCASE("Coup action throws without enough coins") {
@@ -262,8 +254,7 @@ TEST_CASE("Tests for the Player class"){
         p2->gather();
 
         CHECK_THROWS_AS(p1->coup(*p2), std::invalid_argument);
-        delete p1;
-        delete p2;
+
     }
 
     SUBCASE("Coup action with undoCoup"){
@@ -282,8 +273,7 @@ TEST_CASE("Tests for the Player class"){
         p2->setUndoCoup(true);
         p1->coup(*p2);
         CHECK(p2->getAlive() == true);
-        delete p1;
-        delete p2;
+
     }
 
     SUBCASE("Arrest action sets target as arrested") {
@@ -301,8 +291,7 @@ TEST_CASE("Tests for the Player class"){
 
         p1->arrest(*p2);
         CHECK(p2->getArrested());
-        delete p1;
-        delete p2;
+
     }
 
     SUBCASE("startTurn throws if not player's turn") {
@@ -315,8 +304,7 @@ TEST_CASE("Tests for the Player class"){
 
         // Try to have p2 play when it’s p1’s turn
         CHECK_THROWS_AS(p2->startTurn(), std::runtime_error);
-        delete p1;
-        delete p2;
+
     }
 
     SUBCASE("startTurn throws if player has 10+ coins") {
@@ -330,6 +318,291 @@ TEST_CASE("Tests for the Player class"){
         }
 
         CHECK_THROWS_AS(p->startTurn(), std::runtime_error);
-        delete p;
+
     }
 }
+
+TEST_CASE("Tests for the Spy class") {
+    SUBCASE("Spy constructor and inheritance from Player") {
+        coup::Game game;
+        coup::Spy* s = new coup::Spy(game, "Shadow");
+        game.addPlayer(s);
+        game.startGame();
+
+        CHECK(s->getName() == "Shadow");
+        CHECK(s->getRole() == "Spy");
+        CHECK(s->getAlive());
+        CHECK(s->coins() == 0);
+    }
+
+    SUBCASE("Spy showCoinsAmount returns correct value") {
+        coup::Game game;
+        coup::Spy* spy = new coup::Spy(game, "Spy");
+        coup::Player* target = new coup::Player(game, "Target", "Spy");
+        game.addPlayer(spy);
+        game.addPlayer(target);
+        game.startGame();
+
+        for (int i = 0; i < 3; ++i) {
+            spy->gather();
+            target->gather();
+        }
+
+        CHECK(spy->showCoinsAmount(*target) == 3);
+    }
+
+    SUBCASE("Spy showCoinsAmount throws if Spy is dead") {
+        coup::Game game;
+        coup::Spy* spy = new coup::Spy(game, "Spy");
+        coup::Player* target = new coup::Player(game, "Target", "Spy");
+
+        game.addPlayer(spy);
+        game.addPlayer(target);
+        game.startGame();
+
+        spy->setAlive(false);
+        CHECK_THROWS_AS(spy->showCoinsAmount(*target), std::runtime_error);
+
+    }
+
+    SUBCASE("Spy showCoinsAmount throws if target is dead") {
+        coup::Game game;
+        coup::Spy* spy = new coup::Spy(game, "Spy");
+        coup::Player* target = new coup::Player(game, "Target", "Spy");
+
+        game.addPlayer(spy);
+        game.addPlayer(target);
+        game.startGame();
+
+        target->setAlive(false);
+        CHECK_THROWS_AS(spy->showCoinsAmount(*target), std::runtime_error);
+
+    }
+
+    SUBCASE("Spy blockArrest") {
+        coup::Game game;
+        coup::Spy* spy = new coup::Spy(game, "Spy");
+        coup::Player* target = new coup::Player(game, "Target", "Spy");
+
+        game.addPlayer(spy);
+        game.addPlayer(target);
+        game.startGame();
+
+        spy->blockArrest(*target);
+        CHECK(target->getArrestBlocked());
+
+        // Checking that the block arrest doesnt let him usr the arrest action in his turn.
+        spy->gather();
+        target->arrest(*spy);
+        CHECK(target->getArrestBlocked());
+        target->gather();
+        CHECK(!target->getArrestBlocked());
+    }
+}
+
+TEST_CASE("Tests for the Governor class") {
+    SUBCASE("Governor constructor sets role correctly") {
+        coup::Game game;
+        coup::Governor* gov = new coup::Governor(game, "Greg");
+        game.addPlayer(gov);
+        game.startGame();
+
+        CHECK(gov->getName() == "Greg");
+        CHECK(gov->getRole() == "Governor");
+        CHECK(gov->getAlive() == true);
+    }
+
+    SUBCASE("Governor tax adds 3 coins when not sanctioned") {
+        coup::Game game;
+        coup::Governor* gov = new coup::Governor(game, "Greg");
+        coup::Player* dummy = new coup::Player(game, "Dummy", "Spy");
+
+        game.addPlayer(gov);
+        game.addPlayer(dummy);
+        game.startGame();
+
+        gov->tax();  // Governor's turn
+        CHECK(gov->coins() == 3);
+
+        dummy->gather(); // Dummy's turn
+    }
+
+    SUBCASE("Governor tax does nothing if sanctioned") {
+        coup::Game game;
+        coup::Governor* gov = new coup::Governor(game, "Greg");
+        coup::Player* dummy = new coup::Player(game, "Dummy", "Spy");
+
+        game.addPlayer(gov);
+        game.addPlayer(dummy);
+        game.startGame();
+
+        for (int i = 0; i < 3; ++i){
+            gov->gather();
+            dummy->gather();
+        }
+
+        gov->sanction(*dummy);
+        dummy->tax();  // Should not add coins due to sanction
+
+        CHECK(dummy->coins() == 3);
+        dummy->gather(); // Complete dummy's turn
+    }
+
+    SUBCASE("Governor undo reduces player's coins by 2") {
+        coup::Game game;
+        coup::Governor* gov = new coup::Governor(game, "Greg");
+        coup::Player* target = new coup::Player(game, "Target", "Spy");
+
+        game.addPlayer(gov);
+        game.addPlayer(target);
+        game.startGame();
+
+        // Ensure target has coins
+        gov->gather();
+        target->gather(); 
+        gov->gather();
+
+        target->gather(); 
+        int before = target->coins(); // Should be 2
+
+        bool result = gov->undo(*target);
+        CHECK(result == true);
+        CHECK(target->coins() == before - 2);
+    }
+
+    SUBCASE("Undo throws if Governor is not alive") {
+        coup::Game game;
+        coup::Governor* gov = new coup::Governor(game, "Greg");
+        coup::Player* target = new coup::Player(game, "Target", "Spy");
+
+        game.addPlayer(gov);
+        game.addPlayer(target);
+        game.startGame();
+
+        gov->setAlive(false);
+
+        CHECK_THROWS_WITH(gov->undo(*target), "Governor is out of the game.");
+    }
+
+    SUBCASE("Undo throws if target player is not alive") {
+        coup::Game game;
+        coup::Governor* gov = new coup::Governor(game, "Greg");
+        coup::Player* target = new coup::Player(game, "Target", "Spy");
+
+        game.addPlayer(gov);
+        game.addPlayer(target);
+        game.startGame();
+
+        target->setAlive(false);
+
+        CHECK_THROWS_WITH(gov->undo(*target), "Target player is out of the game.");
+    }
+
+    SUBCASE("Governor gets 3 coins instead of 3 in Tax action"){
+        coup::Game game;
+        coup::Governor* gov = new coup::Governor(game, "Greg");
+
+        game.addPlayer(gov);
+        game.startGame();
+
+        gov->tax();
+        CHECK(gov->coins() == 3);
+    }
+
+    SUBCASE("Governor can undo the Tax action of other players"){
+        coup::Game game;
+        coup::Governor* gov = new coup::Governor(game, "Greg");
+        coup::Player* target = new coup::Player(game, "Target", "Spy");
+        game.addPlayer(target);
+        game.addPlayer(gov);
+        game.startGame();
+
+        target->tax();
+        gov->undo(*target);
+
+        CHECK(target->coins() == 0);
+    }
+}
+
+TEST_CASE("Tests for the Baron class") {
+    SUBCASE("Constructor sets correct name and role") {
+        Game game;
+        Baron* baron = new Baron(game, "Ron");
+        CHECK(baron->getName() == "Ron");
+        CHECK(baron->getRole() == "Baron");
+    }
+
+    SUBCASE("Invest increases coins correctly if 3 or more coins") {
+        Game game;
+        Baron* baron = new Baron(game, "Ron");
+        game.addPlayer(baron);
+        game.startGame();
+
+        game.addPlayer(baron);
+        baron->gather();
+        baron->gather();
+        baron->gather();
+        CHECK(baron->coins() == 3);
+
+        // Perform invest
+        baron->invest();
+
+        // Should now have 6 coins
+        CHECK(baron->coins() == 6);
+    }
+
+    SUBCASE("Invest does nothing if coins < 3") {
+        Game game;
+        Baron* baron = new Baron(game, "Ron");
+        game.addPlayer(baron);
+        game.startGame();
+        CHECK(baron->coins() == 0);
+
+        // Should not throw or change anything
+        baron->invest();
+        CHECK(baron->coins() == 0);  // Still 2
+    }
+
+    SUBCASE("Invest throws if Baron is not alive") {
+        Game game;
+        Baron* baron = new Baron(game, "Ron");
+        baron->setAlive(false);  // Simulate death
+        CHECK_THROWS_WITH(baron->invest(), "This Baron is out of the game.");
+    }
+
+    SUBCASE("Compensation gives coin if sanctioned") {
+        Game game;
+        Baron* baron = new Baron(game, "Ron");
+        Baron* baron2 = new Baron(game, "Dan");
+        game.addPlayer(baron);
+        game.addPlayer(baron2);
+        game.startGame();
+
+        for (int i = 0; i < 3; ++i){
+            baron->gather();
+            baron2->gather();
+        }
+
+        baron->sanction(*baron2);
+        CHECK(baron2->coins() ==  4);
+    }
+
+    SUBCASE("Multiple invest calls accumulate coins") {
+        Game game;
+        Baron* baron = new Baron(game, "Ron");
+        game.addPlayer(baron);
+        game.startGame();
+
+        for (int i = 0; i < 3; ++i){
+            baron->gather();
+        }
+        
+        baron->invest();  // +3 , now 6
+        CHECK(baron->coins() == 6);
+
+        baron->invest();  // +3 again, now 12
+        CHECK(baron->coins() == 9);
+    }
+}
+
+

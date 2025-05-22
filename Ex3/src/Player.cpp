@@ -314,4 +314,12 @@ namespace coup {
     void Player::setArrestBlocked(bool state){
         this->arrestBlocked = state;
     }
+
+    /*
+    Returns the arrestBlocked state of the player.
+    */
+    bool Player::getArrestBlocked(){
+        return this->arrestBlocked;
+    }
+
 }

@@ -681,7 +681,7 @@ int main() {
                         currentPlayer, isSpyTurn, playerStatusTexts,
                         static_cast<float>(gameWindow.getWindow().getSize().x));
                 
-                // WINNER CHECK
+                // Winner check
                 if (!winnerWindowOpened) {
                     try {
                         std::string winnerName = game1.winner(); // Will throw if no winner yet
