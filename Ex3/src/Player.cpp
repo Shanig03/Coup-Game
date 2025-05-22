@@ -138,9 +138,9 @@ namespace coup {
         }
 
         this->coinsAmount -= 4;
-        this->anotherTurn = true; // Truck who should get anither turn.
+        this->anotherTurn = true; // Truck who should get another turn.
         this->arrestBlocked = false;
-        this->currGame.moveTurnTo("Judge", *this);
+        //this->currGame.moveTurnTo("Judge", *this);
 
         // No need to passTurns() because the player have 2 more action, 
         // and only at the seconed one the turn will pass to the next player.

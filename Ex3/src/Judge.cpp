@@ -14,18 +14,10 @@ namespace coup {
             throw std::runtime_error("Target player is out of the game.");
         }
 
-        // Need to make it fit the GUI
-        std::cout << this->getName() << ", " << player.getName() << " performed a Bribe action. "
-              << "Do you want to undo it? (y/n): ";
-        char choice;
-        std::cin >> choice;
-        if (choice == 'y' || choice == 'Y') {
-            player.setAnotherTurn(false);  
-            std::cout << player.getName() << " Bribe action was canceled. " << std::endl;
-            return true;  // Indicates undo happened
-        }
+        player.setAnotherTurn(false);  
+        std::cout << player.getName() << " Bribe action was canceled. " << std::endl;
+        return true;  // Indicates undo happened
         
-        return false;
     }
 
 }

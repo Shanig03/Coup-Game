@@ -43,8 +43,8 @@ Button.o: GUI/Button.cpp GUI/Button.hpp
 Main.o: GUI/main.cpp
 	$(CXX) $(CXXFLAGS) -c GUI/main.cpp -o Main.o
 
-tests: Test/Tests.cpp Player.o Game.o Spy.o Merchant.o General.o Judge.o Baron.o Governor.o
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -o tests Test/Tests.cpp Player.o Game.o Spy.o Merchant.o General.o Judge.o Baron.o Governor.o
+tests: Tests/Tests.cpp Player.o Game.o Spy.o Merchant.o General.o Judge.o Baron.o Governor.o
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -o tests Tests/Tests.cpp Player.o Game.o Spy.o Merchant.o General.o Judge.o Baron.o Governor.o
 
 test: tests
 	./tests
