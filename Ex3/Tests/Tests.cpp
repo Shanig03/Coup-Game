@@ -606,3 +606,83 @@ TEST_CASE("Tests for the Baron class") {
 }
 
 
+TEST_CASE("Tests for the General class") {
+    SUBCASE("Constructor sets correct name and role") {
+        Game game;
+        General* general = new General(game, "Commander");
+        game.addPlayer(general);
+        game.startGame();
+
+        CHECK(general->getName() == "Commander");
+        CHECK(general->getRole() == "General");
+    }
+
+    SUBCASE("Undo works correctly with valid conditions") {
+        Game game;
+        General* general = new General(game, "Commander");
+        General* general2 = new General(game, "noa");
+        General* general3 = new General(game, "shani");
+        game.addPlayer(general);
+        game.addPlayer(general2);
+        game.addPlayer(general3);
+        game.startGame();
+
+        for (int i = 0; i < 7; i++){
+            general->gather();
+            general2->gather();
+            general3->gather();
+        }
+        CHECK(general->coins() == 7);
+        
+        general3->undo(*general2);
+        CHECK(general3->coins() == 2);  // Should have spent 5 coins for undo
+
+        general->coup(*general2);
+        CHECK(general->coins() == 0);  // Should have spent 7 coins for coup
+        CHECK(general2->getAlive()); // Should be true
+    }
+
+    SUBCASE("Undo fails if General is dead") {
+        Game game;
+        General* general = new General(game, "Commander");
+        General* general2 = new General(game, "noa");
+        game.addPlayer(general);
+        game.addPlayer(general2);
+        game.startGame();
+        general->setAlive(false);
+        CHECK_THROWS_WITH(general->undo(*general2), "General is out of the game.");
+    }
+
+    SUBCASE("Undo fails if target player is dead") {
+        Game game;
+        General* general = new General(game, "Commander");
+        General* general2 = new General(game, "noa");
+        game.addPlayer(general);
+        game.addPlayer(general2);
+        game.startGame();
+
+        general2->setAlive(false);
+
+        for (int i = 0; i < 5; i++){
+            general->gather();
+        }
+        CHECK_THROWS_WITH(general->undo(*general2), "Target player is out of the game.");
+    }
+
+    SUBCASE("Undo fails if General has fewer than 5 coins") {
+        Game game;
+        General* general = new General(game, "Commander");
+        General* general2 = new General(game, "noa");
+        game.addPlayer(general);
+        game.addPlayer(general2);
+        game.startGame();
+
+        general->gather();
+        general2->gather();
+        
+        CHECK(general->coins() == 1);
+        CHECK_THROWS_WITH(general->undo(*general2), "General doesnt have 5 coins to undo.");
+    }
+}
+
+
