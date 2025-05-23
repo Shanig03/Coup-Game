@@ -6,6 +6,9 @@
 #include "../src/Merchant.hpp"
 #include "../src/Baron.hpp"
 #include "../src/Spy.hpp"
+#include "../src/General.hpp"
+#include "../src/Judge.hpp"
+#include "../src/Governor.hpp"
 
 using namespace coup;
 
@@ -682,6 +685,304 @@ TEST_CASE("Tests for the General class") {
         
         CHECK(general->coins() == 1);
         CHECK_THROWS_WITH(general->undo(*general2), "General doesnt have 5 coins to undo.");
+    }
+}
+
+
+TEST_CASE("Tests for the Judge class") {
+    
+    SUBCASE("Constructor sets correct name and role") {
+        Game game;
+        Judge* judge = new Judge(game, "Dan");
+        game.addPlayer(judge);
+        game.startGame();
+
+        CHECK(judge->getName() == "Dan");
+        CHECK(judge->getRole() == "Judge");
+    }
+
+    SUBCASE("Undo works correctly with valid conditions") {
+        Game game;
+        Judge* judge = new Judge(game, "Dan");
+        Judge* target = new Judge(game, "Roni");
+        Judge* extra = new Judge(game, "Maya");
+
+        game.addPlayer(judge);
+        game.addPlayer(target);
+        game.addPlayer(extra);
+        game.startGame();
+
+        target->setAnotherTurn(true);
+        CHECK(target->hasAnotherTurn() == true);
+
+        bool result = judge->undo(*target);
+        CHECK(result == true);
+        CHECK(target->hasAnotherTurn() == false);
+    }
+
+    SUBCASE("Undo fails if Judge is dead") {
+        Game game;
+        Judge* judge = new Judge(game, "Dan");
+        Judge* target = new Judge(game, "Maya");
+
+        game.addPlayer(judge);
+        game.addPlayer(target);
+        game.startGame();
+
+        judge->setAlive(false);
+
+        CHECK_THROWS_WITH(judge->undo(*target), "Judge is out of the game.");
+    }
+
+    SUBCASE("Undo fails if target player is dead") {
+        Game game;
+        Judge* judge = new Judge(game, "Dan");
+        Judge* target = new Judge(game, "Roni");
+
+        game.addPlayer(judge);
+        game.addPlayer(target);
+        game.startGame();
+
+        target->setAlive(false);
+
+        CHECK_THROWS_WITH(judge->undo(*target), "Target player is out of the game.");
+    }
+
+    SUBCASE("Undo works even if target never had another turn") {
+        Game game;
+        Judge* judge = new Judge(game, "Dan");
+        Judge* target = new Judge(game, "Maya");
+
+        game.addPlayer(judge);
+        game.addPlayer(target);
+        game.startGame();
+
+        CHECK(target->hasAnotherTurn() == false); 
+        bool result = judge->undo(*target);
+        CHECK(result == true);
+        CHECK(target->hasAnotherTurn() == false);
+    }
+
+    SUBCASE("Undo does not affect other players") {
+        Game game;
+        Judge* judge = new Judge(game, "Dan");
+        Judge* target = new Judge(game, "Maya");
+        Judge* other = new Judge(game, "Roni");
+
+        game.addPlayer(judge);
+        game.addPlayer(target);
+        game.addPlayer(other);
+        game.startGame();
+
+        target->setAnotherTurn(true);
+        other->setAnotherTurn(true);
+
+        judge->undo(*target);
+        CHECK(target->hasAnotherTurn() == false);
+        CHECK(other->hasAnotherTurn() == true); 
+    }
+}
+
+TEST_CASE("Tests for the Merchant class") {
+
+    SUBCASE("Constructor sets correct name and role") {
+        Game game;
+        Merchant* merchant = new Merchant(game, "Dan");
+        game.addPlayer(merchant);
+        game.startGame();
+
+        CHECK(merchant->getName() == "Dan");
+        CHECK(merchant->getRole() == "Merchant");
+    }
+
+    SUBCASE("extraCoin does not add coin if Merchant has less than 3 coins") {
+        Game game;
+        Merchant* merchant = new Merchant(game, "Dan");
+        Merchant* p2 = new Merchant(game, "Maya");
+
+        game.addPlayer(merchant);
+        game.addPlayer(p2);
+        game.startGame();
+
+        merchant->gather(); // 1 coin
+        CHECK(merchant->coins() == 1);
+        // Try again to call extraCoin() (its called inside gather too)
+        merchant->extraCoin(); // should not add anything
+        CHECK(merchant->coins() == 1);
+    }
+
+    SUBCASE("extraCoin adds one coin if Merchant has at least 3 coins") {
+        Game game;
+        Merchant* merchant = new Merchant(game, "Ali Baba");
+        Spy* p2 = new Spy(game, "Marco Polo");
+
+        game.addPlayer(merchant);
+        game.addPlayer(p2);
+        game.startGame();
+
+        for (int i = 0; i < 4; i++) {
+            merchant->gather();  
+            p2->gather();
+        }
+        
+        CHECK(merchant->coins() == 5);
+        CHECK(p2->coins() == 4);
+    }
+
+    SUBCASE("merchantGotArrested reduces coins by 2") {
+        Game game;
+        Merchant* merchant = new Merchant(game, "Dan");
+        Spy* p2 = new Spy(game, "Maya");
+        
+        game.addPlayer(p2);
+        game.addPlayer(merchant);
+        game.startGame();
+
+        for (int i = 0; i < 5; i++) {
+            p2->gather();
+            merchant->gather();
+        }
+
+        CHECK(merchant->coins() == 7);
+
+        p2->arrest(*merchant);
+        CHECK(merchant->coins() == 5);
+    }
+}
+
+TEST_CASE("Game class tests") {
+    Game game;
+
+    SUBCASE("Add players and get player names") {
+        Governor* p1 = new Governor(game, "Alice");
+        Governor* p2 = new Governor(game, "Bob");
+
+        game.addPlayer(p1);
+        game.addPlayer(p2);
+
+        auto names = game.players();
+        CHECK_EQ(names.size(), 2);
+        CHECK_EQ(names[0], "Alice");
+        CHECK_EQ(names[1], "Bob");
+
+        SUBCASE("Duplicate name ignored") {
+            Governor* dup = new Governor(game, "Alice");
+            game.addPlayer(dup);
+            CHECK_EQ(game.players().size(), 2); // no new player added
+            delete dup;
+        }
+
+        SUBCASE("Too many players throws") {
+            for (int i = 0; i < 4; i++) {
+                game.addPlayer(new Governor(game, "P" + std::to_string(i)));
+            }
+            CHECK_THROWS_AS(game.addPlayer(new Governor(game, "Overflow")), std::runtime_error);
+        }
+    }
+
+    SUBCASE("Start game sets first alive player") {
+        Governor* p1 = new Governor(game, "Alice");
+        Governor* p2 = new Governor(game, "Bob");
+
+        game.addPlayer(p1);
+        game.addPlayer(p2);
+        game.startGame();
+
+        CHECK_EQ(game.turn(), "Alice");
+    }
+
+    SUBCASE("Turn passing works and skips dead players") {
+        Governor* p1 = new Governor(game, "Alice");
+        Governor* p2 = new Governor(game, "Bob");
+        Governor* p3 = new Governor(game, "Charlie");
+
+        game.addPlayer(p1);
+        game.addPlayer(p2);
+        game.addPlayer(p3);
+        game.startGame();  // Should be Alice
+
+        CHECK_EQ(game.turn(), "Alice");
+        game.passTurns(); // Should go to Bob
+        CHECK_EQ(game.turn(), "Bob");
+
+        p3->setAlive(false); // Charlie is dead
+        game.passTurns(); // Should go to Alice (wrap around)
+        CHECK_EQ(game.turn(), "Alice");
+    }
+
+    SUBCASE("Remove player marks them dead") {
+        Governor* p1 = new Governor(game, "Alice");
+        Governor* p2 = new Governor(game, "Bob");
+
+        game.addPlayer(p1);
+        game.addPlayer(p2);
+
+        game.removePlayer("Alice");
+        CHECK_FALSE(p1->getAlive());
+        CHECK(p2->getAlive());
+    }
+
+    SUBCASE("Winner only declared when one player alive") {
+        Governor* p1 = new Governor(game, "Alice");
+        Governor* p2 = new Governor(game, "Bob");
+
+        game.addPlayer(p1);
+        game.addPlayer(p2);
+
+        game.removePlayer("Bob");
+        CHECK_EQ(game.winner(), "Alice");
+
+        SUBCASE("Calling winner too early throws") {
+            game.addPlayer(new Governor(game, "Charlie"));
+            CHECK_THROWS_AS(game.winner(), std::runtime_error);
+        }
+    }
+
+    SUBCASE("Role list returns correct players") {
+        Governor* p1 = new Governor(game, "Alice");
+        Baron* p2 = new Baron(game, "Bob");
+
+        game.addPlayer(p1);
+        game.addPlayer(p2);
+
+        auto govs = game.roleList("Governor");
+        auto barons = game.roleList("Baron");
+        auto generals = game.roleList("General");
+
+        CHECK_EQ(govs.size(), 1);
+        CHECK_EQ(barons.size(), 1);
+        CHECK_EQ(generals.size(), 0);
+    }
+
+    SUBCASE("Assign random roles and all added") {
+        std::vector<std::string> names = {"Alice", "Bob", "Charlie"};
+        game.assignRandomRoles(names);
+
+        CHECK_EQ(game.getPlayers().size(), 3);
+        auto all = game.players();
+        CHECK_EQ(all.size(), 3);
+    }
+
+    SUBCASE("Get current player returns correct object") {
+        Governor* p1 = new Governor(game, "Alice");
+        Governor* p2 = new Governor(game, "Bob");
+
+        game.addPlayer(p1);
+        game.addPlayer(p2);
+        game.startGame();
+
+        Player* current = game.getCurrentPlayer();
+        CHECK(current != nullptr);
+        CHECK_EQ(current->getName(), game.turn());
+    }
+
+    SUBCASE("Get all players returns correct list") {
+        Governor* p1 = new Governor(game, "Alice");
+        Governor* p2 = new Governor(game, "Bob");
+
+        game.addPlayer(p1);
+        game.addPlayer(p2);
+        CHECK_EQ(game.getPlayers().size(), 2);
     }
 }
 

@@ -29,11 +29,7 @@ namespace coup {
 
     }
 
-    
-    /*
-    This function implement the gather action in the Coup game. 
-    Each player who choose this action gets 1 coin.
-    */
+
     void Player::gather(){
         startTurn();
     
@@ -52,10 +48,6 @@ namespace coup {
     
     }
 
-    /*
-    This function implement the tax action in the Coup game. 
-    Each player who choose this action gets 2 coin, Except for the Governor who gets 3 coins.
-    */
     void Player::tax(){
         startTurn();
 
@@ -77,12 +69,7 @@ namespace coup {
         }
     }
 
-    /*
-    This function implement the arrest action in the Coup game. 
-    The Player choose another player and arrest him - takes 1 coin from him. 
-    This action cant be played on the same player twice in a row.
-    @param p the player who got arrested.
-    */
+
     void Player::arrest(Player& p){
         startTurn();
         if (!p.getAlive()){throw std::runtime_error("The player on whom the action is preformed is out of the game.");}
@@ -102,14 +89,16 @@ namespace coup {
         if (p.getRole() != "General"){
 
             // Merchant pays 2 coins to the game instead of the player that arrested him.
-            if (Merchant* m = dynamic_cast<Merchant*>(this)){
-                m->extraCoin();
+            if (Merchant* m = dynamic_cast<Merchant*>(&p)){
                 m->merchantGotArrested();
 
             } else if (p.getRole() != "Merchant"){
                 p.coinsAmount--;
                 this->coinsAmount++; 
-            }            
+            }   
+            
+            if (Merchant* m = dynamic_cast<Merchant*>(this)){ m->extraCoin();}
+            
             p.setArrested(true); // Track players who got arrested.
         }
 
@@ -118,17 +107,10 @@ namespace coup {
         this->currGame.passTurns();
     }
 
-    /*
-    Returns the coins amount of the player.
-    */
     int Player::coins() const{
         return this->coinsAmount;
     }
 
-    /*
-    This function implement the bribe action in the Coup game. 
-    The Player pays 4 coins and in return he gets 2 turns in a row.
-    */
     void Player::bribe(){
         startTurn();
 
@@ -147,13 +129,6 @@ namespace coup {
     
     }
 
-    /*
-    This function implement the sanction action in the Coup game. 
-    The Player choose another player and sanction him - Prevent him from using tax and gather
-    actions until his next turn.
-    This action costs 3 coins.
-    @param p the player who got sanctioned.
-    */
     void Player::sanction(Player& p){
         startTurn();
         if (!p.getAlive()){throw std::runtime_error("The player on whom the action is preformed is out of the game.");}
@@ -179,12 +154,7 @@ namespace coup {
 
     }
 
-    /*
-    This function implement the coup action in the Coup game. 
-    The Player choose another player and coup him - kick him out of the game.
-    This action costs 7 coins.
-    @param p the player who got couped.
-    */
+
     void Player::coup(Player& player) {
         // Checks if the player who plays is alive.
         if (!this->isAlive){ throw std::runtime_error("Player is out of the game."); }
@@ -219,105 +189,58 @@ namespace coup {
         this->isSanctioned = false;
     }
 
-    /*
-    Returns the sanctioned state of the player.
-    */
     bool Player::getSan() const{
         return this->isSanctioned;
     }
 
-    /*
-    Returns the state of the player.
-    */
     bool Player::getAlive() const {
         return this->isAlive;
     }
 
-    /*
-    Returns the name of the player.
-    */
     std::string Player::getName() const{
         return this->playerName;
     }
 
-    /*
-    Set the state of the player.
-    @param aliveStatus the new status.
-    */
     void Player::setAlive(bool aliveStatus) {
         this->isAlive = aliveStatus;
     }
-    
-    /*
-    Returns the role of the player.
-    */
+
     std::string Player::getRole(){
         return this->role;
     }
 
-    /*
-    Decrease the coins amount of the player.
-    @param newAmount the amount to deducte.
-    */
     void Player::decreaseCoins(int newAmount){
         this->coinsAmount -= newAmount;
     }
-
     
     bool Player::undo(Player& player){
         return false;
     }
-    
 
-    /*
-    Set the undoCoup state of the player.
-    @param undo new state.
-    */
     void Player::setUndoCoup(bool undo){
         this->undoCoup = undo;
     }
 
-    /*
-    Returns the anotherTurn state of the player.
-    */
     bool Player::hasAnotherTurn(){
         return this->anotherTurn;
     }
 
-    /*
-    Set the anotherTurn state of the player.
-    @param state new state.
-    */
     void Player::setAnotherTurn(bool state){
         this->anotherTurn = state;
     }
 
-    /*
-    Returns the arrested state of the player.
-    */
     bool Player::getArrested(){
         return this->arrested;
     }
 
-    /*
-    Set the arrested state of the player.
-    @param state new state.
-    */
     void Player::setArrested(bool state){
         this->arrested = state;
     }
 
-    /*
-    Set the arrestBlocked state of the player.
-    @param state new state.
-    */
     void Player::setArrestBlocked(bool state){
         this->arrestBlocked = state;
     }
 
-    /*
-    Returns the arrestBlocked state of the player.
-    */
     bool Player::getArrestBlocked(){
         return this->arrestBlocked;
     }

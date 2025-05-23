@@ -193,7 +193,53 @@ void showSanctionPopup(sf::Font& font, coup::Player* currentPlayer, const std::v
         popup.display();
     }
 }
+bool showUndoPopupForBribe(sf::Font& font, coup::Player* player, std::string action) {
+    sf::RenderWindow popup(sf::VideoMode(380, 180), "Undo " + action + " Action", sf::Style::Titlebar | sf::Style::Close);
 
+    Button undoBtn(50, 100, 80, 40, "Undo");
+    Button skipBtn(170, 100, 80, 40, "Skip");
+
+    undoBtn.setFont(font);
+    undoBtn.setButtonColor(sf::Color::Red);
+    skipBtn.setFont(font);
+    skipBtn.setButtonColor(sf::Color::Green);
+
+    sf::Text title("Player " + player->getName() + ", Do you want to undo the " + action + " action?", font, 20);
+    title.setFillColor(sf::Color::White);
+
+    sf::FloatRect titleBounds = title.getLocalBounds();
+    title.setOrigin(titleBounds.left + titleBounds.width / 2.f, titleBounds.top + titleBounds.height / 2.f);
+    title.setPosition(popup.getSize().x / 2.f, 50.f);
+
+    while (popup.isOpen()) {
+        sf::Event event;
+        while (popup.pollEvent(event)) {
+            if (event.type == sf::Event::Closed) {
+                popup.close();
+                return false; // treat closed window as skip
+            }
+            if (event.type == sf::Event::MouseButtonPressed) {
+                auto mousePos = popup.mapPixelToCoords(sf::Mouse::getPosition(popup));
+                if (undoBtn.isClicked(mousePos)) {
+                    popup.close();
+                    return true; // undo chosen
+                }
+                if (skipBtn.isClicked(mousePos)) {
+                    popup.close();
+                    return false; // skip chosen
+                }
+            }
+        }
+
+        popup.clear(sf::Color(50, 50, 50));
+        popup.draw(title);
+        undoBtn.draw(popup);
+        skipBtn.draw(popup);
+        popup.display();
+    }
+
+    return false; // fallback
+}
 
 bool showUndoPopup(sf::Font& font, coup::Player* player, std::string action) {
     sf::RenderWindow popup(sf::VideoMode(380, 180), "Undo " + action + " Action", sf::Style::Titlebar | sf::Style::Close);
@@ -371,7 +417,7 @@ void processUndoForBribe(sf::Font& font, coup::Game& game, coup::Player* current
         // Skip current player (usually can't undo own action)
         if (judge == currentPlayer) continue;
 
-        bool undoChosen = showUndoPopup(font, judge , "Bribe");
+        bool undoChosen = showUndoPopupForBribe(font, judge , "Bribe");
 
         if (undoChosen) {
             coup::Judge* judRole = dynamic_cast<coup::Judge*>(judge);

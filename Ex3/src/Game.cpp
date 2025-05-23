@@ -13,6 +13,7 @@ namespace coup {
     }
 
     Game::~Game() {
+        // Delete all th eplayers in the game.
         for (Player* p : playersList) {
             delete p;
         }
@@ -20,6 +21,7 @@ namespace coup {
     }
 
     void Game::addPlayer(Player* p){
+        // Check that there are no more that 6 players.
         if (playersList.size() >= 6) {
             throw std::runtime_error("Can't add more than 6 players.");
         }
@@ -52,15 +54,12 @@ namespace coup {
         return this->currPlayer;
     }
 
-    /*
-    A function to pass the turnes by the order of the players list 
-    only for players that are still in the game
-    */
     void Game::passTurns(){
         // Find current player's index
         size_t index = 0;
         Player* current = nullptr;
 
+        // Finds the current player in the players list.
         for (size_t i = 0; i < playersList.size(); ++i) {
             if (playersList[i]->getName() == currPlayer) {
                 index = i;
@@ -80,10 +79,10 @@ namespace coup {
             return; // Don't change turn
         }
 
-        // Normal turn passing
+        // Turn passing
         size_t total = playersList.size();
         for (size_t offset = 1; offset <= total; ++offset) {
-            Player* nextPlayer = playersList[(index + offset) % total];
+            Player* nextPlayer = playersList[(index + offset) % total]; // Going in a loop.
             std::cout << "Checking player: " << nextPlayer->getName()
                     << ", alive? " << nextPlayer->getAlive() << std::endl;
 
@@ -95,7 +94,7 @@ namespace coup {
                         
                     }
                 }
-                
+                // Passing the turn to the next alive player that was found.
                 currPlayer = nextPlayer->getName();
                 return;
             }
@@ -105,6 +104,7 @@ namespace coup {
     }
 
     void Game::startGame(){
+        // Set the current player to be the first in the list so the game can start.
         for (Player* p : playersList) {
             if (p->getAlive()) {
                 this->currPlayer = p->getName();
@@ -115,6 +115,7 @@ namespace coup {
     }
 
     void Game::removePlayer(std::string name){
+        // Looks for the name in the players list and set his alive status to false.
         for (Player* p : playersList) {
             if (p->getName() == name) {
                 p->setAlive(false);
@@ -129,6 +130,7 @@ namespace coup {
         std::string winnerName;
         int aliveCount = 0;
 
+        // Count how many "alive" players are in the list.
         for (Player* p : playersList) {
             if (p->getAlive()) {
                 aliveCount++;
@@ -136,15 +138,16 @@ namespace coup {
             }
         }
 
+        // If there is only one- he is the winner.
         if (aliveCount == 1) {
             return winnerName;
         }
 
         throw std::runtime_error("Game is not over yet. No winner.");
-    
     }
 
 
+    /*
     void Game::moveTurnTo(const std::string& role, Player& p) {
         std::string originalTurn = this->currPlayer;
 
@@ -161,9 +164,12 @@ namespace coup {
             }
         }
     }
+    */
 
     std::vector<Player*> Game::roleList(const std::string& role) {
         std::vector<Player*> pList;
+
+        // Look for all the players with the asked role and add them to a list.
         for (Player* candidate : playersList) {
             if (!candidate->getAlive()) {
                 continue;
@@ -179,8 +185,9 @@ namespace coup {
     void Game::assignRandomRoles(const std::vector<std::string>& playerNames) {
         std::vector<std::string> roles = {"Governor", "Baron", "General", "Merchant", "Judge", "Spy"};
 
-        std::srand(static_cast<unsigned>(std::time(nullptr))); // Seed RNG
+        std::srand(static_cast<unsigned>(std::time(nullptr))); // Seed 
 
+        // Each name in the list gets a role and that its getting initiated as the role they got. 
         for (const std::string& name : playerNames) {
             std::string role = roles[std::rand() % roles.size()];
             Player* p = nullptr;
@@ -208,6 +215,7 @@ namespace coup {
 
     Player* Game::getCurrentPlayer(){
         Player* curr;
+        // Looks for the current player by his name in the players list.
         for (int i = 0; i < this->playersList.size(); i++){
             if (playersList[i]->getName() == this->currPlayer){
                 curr = playersList[i];
