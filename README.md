@@ -1,3 +1,4 @@
+Email : shanig7531@gmail.com
 # COUP Game
 ## Game Overview
 
