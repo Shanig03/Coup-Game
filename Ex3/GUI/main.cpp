@@ -645,7 +645,12 @@ int main() {
                             coup::Player* currentPlayer = game1.getCurrentPlayer();
                             if (currentPlayer != nullptr) {
                                 if (action == "Gather") {
-                                    currentPlayer->gather();
+                                    try{
+                                        currentPlayer->gather();
+                                    }
+                                    catch(const std::exception& e){
+                                        std::cerr << e.what() << '\n';
+                                    }
                                 }
                                 if (action == "Tax") {
                                     if (!currentPlayer->getSan()){
