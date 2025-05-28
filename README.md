@@ -72,6 +72,18 @@ All game logic is tested using the Doctest framework. Tests are organized into a
 ## Tests
 Testing is done with Doctest. They includes Core logics like turn passing, player removal, and winner logic. Each role’s behavior tested in isolation and integration. Tests are all in a single TEST_CASE per class, with SUBCASEs separating functionality.
 
+## Libraries Used
+### 🔹 C++ Standard Libraries
+- `<iostream>` - Used for input and output operations such as printing to the console (std::cout).
+- `<vector>` - Provides dynamic array support through std::vector, used to manage players and game data.
+- `<stdexcept>` / `<exception>` - Enable exception handling with classes like std::runtime_error and std::exception, used for error reporting and robustness.
+### 🔹 SFML
+- `sfml-graphics` - Used for rendering shapes, sprites, and text in the GUI (e.g., buttons, labels).
+- `sfml-window` - Manages the game window and handles user input such as mouse clicks and keyboard events.
+- `sfml-system` - Provides core utilities such as timing (sf::Clock) and thread support.
+
+Together, these libraries support both the game logic and interactive GUI, allowing the project to offer a complete gameplay experience with visuals and user interaction in C++.
+
 ## Makefile
 The Makefile provides the following targets:
 | Target       | Description                   |
