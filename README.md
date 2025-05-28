@@ -72,6 +72,10 @@ All game logic is tested using the Doctest framework. Tests are organized into a
 ## Tests
 Testing is done with Doctest. They includes Core logics like turn passing, player removal, and winner logic. Each role’s behavior tested in isolation and integration. Tests are all in a single TEST_CASE per class, with SUBCASEs separating functionality.
 
+## Valgrind
+Valgrind is used in this project to detect memory leaks, invalid memory access, and other memory-related issues.
+- Note: Some minor memory leaks might be reported due to internal behavior of the SFML GUI library. These are generally safe and outside the scope of the project's own memory management.
+
 ## Libraries Used
 ### 🔹 C++ Standard Libraries
 - `<iostream>` - Used for input and output operations such as printing to the console (std::cout).
