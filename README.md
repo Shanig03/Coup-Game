@@ -99,7 +99,7 @@ The Makefile provides the following targets:
 | `make clean` | Cleans all compiled files     |
 
 ## How To Run
-Ensure you're in the project root directory (Ex3) and have `clang++` and `valgrind` installed.
+Ensure you're in the project root directory (Ex3) and have `clang++`, `valgrind` and all the external libraries I mentioned above installed.
 
 ### Build Main Program With The GUI
 ```bash
