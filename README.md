@@ -76,7 +76,8 @@ Testing is done with Doctest. They includes Core logics like turn passing, playe
 The Makefile provides the following targets:
 | Target       | Description                   |
 | ------------ | ----------------------------- |
-| `make Main`       | Builds the main game binary   |
+| `make Main`       | Builds the simple main example game binary   |
+| `make gui`       | Builds the main GUI game binary   |
 | `make test`  | Compiles and runs all tests   |
 | `make valgrind`   | Run the main with valgrind for memory leak detection |
 | `make clean` | Cleans all compiled files     |
@@ -85,6 +86,14 @@ The Makefile provides the following targets:
 Ensure you're in the project root directory (Ex3) and have `clang++` and `valgrind` installed.
 
 ### Build Main Program With The GUI
+```bash
+make gui
+```
+#### Than run the Main Program:
+```bash
+./gui
+```
+### Build Simple Main Example Program
 ```bash
 make Main
 ```
