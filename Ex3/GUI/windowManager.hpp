@@ -1,3 +1,5 @@
+// Email: shanig7531@gmail.com
+
 #ifndef WINDOW_MANAGER_HPP
 #define WINDOW_MANAGER_HPP
 

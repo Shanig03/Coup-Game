@@ -59,9 +59,6 @@ namespace coup {
             
             this->coinsAmount += 2; // Adds 2 coins to the player.
 
-            // Ask all the Governors if they wants to undo this tax action.
-            //this->currGame.moveTurnTo("Governor", *this);
-            std::cout << coinsAmount << std::endl; // Delete this
             this->arrestBlocked = false;
             this->currGame.passTurns();
         }
@@ -122,8 +119,6 @@ namespace coup {
         this->coinsAmount -= 4;
         this->anotherTurn = true; // Truck who should get another turn.
         this->arrestBlocked = false;
-        //this->currGame.moveTurnTo("Judge", *this);
-
         // No need to passTurns() because the player have 2 more action, 
         // and only at the seconed one the turn will pass to the next player.
     
@@ -173,8 +168,6 @@ namespace coup {
         this->coinsAmount -= 7; 
         if (Merchant* m = dynamic_cast<Merchant*>(this)){m->extraCoin();}
 
-        // Ask all the Generals if they wants to undo this coup action.
-        //this->currGame.moveTurnTo("General", player); 
 
         // Checks if any of the General wants to undo the coup.
         if (!player.undoCoup){

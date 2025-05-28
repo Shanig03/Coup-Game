@@ -1,6 +1,8 @@
+// Email: shanig7531@gmail.com
+
 #include "Button.hpp"
 #include <iostream>
-#include <cmath>  // for std::round
+#include <cmath> 
 
 Button::Button(float x, float y, float width, float height, const std::string& text){
     shape.setPosition(x, y);

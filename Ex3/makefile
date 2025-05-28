@@ -1,15 +1,33 @@
 # Email: shanig7531@gmail.com
 
-CXX = clang++ # Compiler
-CXXFLAGS = -std=c++17 -Wall -g # Flags
+CXX = clang++
+CXXFLAGS = -std=c++17 -Wall -g
 INCLUDES = -I./src -I./Test -I./GUI
 LDFLAGS = -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
 
-all: Main
+all: gui Main
 
-Main: Player.o Game.o Spy.o Merchant.o General.o Judge.o Baron.o Governor.o windowManager.o Button.o Main.o
-	$(CXX) $(CXXFLAGS) -o Main Player.o Game.o Spy.o Merchant.o General.o Judge.o Baron.o Governor.o windowManager.o Button.o Main.o $(LDFLAGS)
+# === GUI Version ===
+gui: Player.o Game.o Spy.o Merchant.o General.o Judge.o Baron.o Governor.o windowManager.o Button.o GUI_main.o
+	$(CXX) $(CXXFLAGS) -o gui Player.o Game.o Spy.o Merchant.o General.o Judge.o Baron.o Governor.o windowManager.o Button.o GUI_main.o $(LDFLAGS)
 
+GUI_main.o: GUI/main.cpp
+	$(CXX) $(CXXFLAGS) -c GUI/main.cpp -o GUI_main.o
+
+run-gui: gui
+	./gui
+
+# === CLI Simple Version ===
+Main: Player.o Game.o Spy.o Merchant.o General.o Judge.o Baron.o Governor.o SimpleMain.o
+	$(CXX) $(CXXFLAGS) -o Main Player.o Game.o Spy.o Merchant.o General.o Judge.o Baron.o Governor.o SimpleMain.o
+
+SimpleMain.o: src/main.cpp
+	$(CXX) $(CXXFLAGS) -c src/main.cpp -o SimpleMain.o
+
+run-main: Main
+	./Main
+
+# === Object Files ===
 Player.o: src/Player.cpp src/Player.hpp src/Merchant.hpp src/Baron.hpp src/Game.hpp
 	$(CXX) $(CXXFLAGS) -c src/Player.cpp -o Player.o
 
@@ -40,19 +58,17 @@ windowManager.o: GUI/windowManager.cpp GUI/windowManager.hpp GUI/Button.hpp
 Button.o: GUI/Button.cpp GUI/Button.hpp
 	$(CXX) $(CXXFLAGS) -c GUI/Button.cpp -o Button.o
 
-Main.o: GUI/main.cpp
-	$(CXX) $(CXXFLAGS) -c GUI/main.cpp -o Main.o
-
+# === Testing ===
 tests: Tests/Tests.cpp Player.o Game.o Spy.o Merchant.o General.o Judge.o Baron.o Governor.o
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -o tests Tests/Tests.cpp Player.o Game.o Spy.o Merchant.o General.o Judge.o Baron.o Governor.o
 
 test: tests
 	./tests
 
-valgrind: Main tests
-	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes ./Main
+valgrind: gui tests
+	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes ./tests
 
 clean:
-	rm -f *.o Main Test tests
+	rm -f *.o gui Main tests
 
-.PHONY: all clean test
+.PHONY: all clean test run-main run-gui

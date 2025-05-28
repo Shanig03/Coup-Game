@@ -1,3 +1,5 @@
+// Email: shanig7531@gmail.com
+
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <vector>
