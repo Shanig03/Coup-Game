@@ -18,170 +18,185 @@
 using namespace coup;
 
 int main() {
-    Game g;
-    Governor gov(g, "shani");
-    Baron bar(g, "noa");
-    Spy gen(g, "shir");
 
-    g.addPlayer(&gov);
-    g.addPlayer(&bar);
-    g.addPlayer(&gen);
+    std::cout << "Starting Game" << std::endl;
+
+    Game g;
+    Governor* governor = new Governor(g, "shani");
+    Baron* baron = new Baron(g, "dan");
+    General* general = new General(g, "or");
+    Merchant* merchant = new Merchant(g, "shir");
+    Judge* judge = new Judge(g, "noa");
+    Spy* spy = new Spy(g, "shay");
+
+    g.addPlayer(governor);
+    g.addPlayer(baron);
+    g.addPlayer(general);
+    g.addPlayer(merchant);
+    g.addPlayer(judge);
+    g.addPlayer(spy);
+
     g.startGame();
 
-    std::cout << "Players in game order:" << std::endl;
+    std::cout << "Players in the game: " << std::endl;
     for (std::string s : g.players()) {
         std::cout << s << std::endl;
     }
 
-    gov.gather();
-    bar.gather();
-    gen.gather();
+    std::cout << "Current turn: " << g.turn() << std::endl;
 
-    gov.gather();
-    bar.gather();
-    gen.gather();
+    // Round 1: Everyone gathers
+    for (Player* p : g.getPlayers()) {
+        std::cout << p->getName() << " gathers coins." << std::endl;
+        p->gather();
+    }
 
-    gov.gather();
-    bar.gather();
-    gen.gather();
-
-    gov.gather();
-    bar.gather();
-    gen.gather();
-
-    std::cout << "gov coins before bribe:  " << gov.coins() << std::endl;
-    gov.bribe();
-    std::cout << "gov coins after bribe:  " << gov.coins() << std::endl;
-    gov.gather();
-    gov.gather();
-    std::cout << "gov coins after turnes:  " << gov.coins() << std::endl;
-    bar.gather();
-    gen.gather();
-
-    std::cout << "gov coins before arrest:  " << gov.coins() << std::endl;
-    gov.arrest(gen);
-    std::cout << "gov coins after arrest:  " << gov.coins() << std::endl;
-
-    std::cout << "bar coins before arrest:  " << bar.coins() << std::endl;
-    bar.arrest(gen);
-    std::cout << "bar coins after arrest:  " << bar.coins() << std::endl;
-
-    bar.gather();
-    gen.gather();
-
-    std::cout << "gov coins before arrest:  " << gov.coins() << std::endl;
-    gov.arrest(gen);
-    std::cout << "gov coins after arrest:  " << gov.coins() << std::endl;    bar.gather();
-    gen.gather();
-
-    gov.gather();
-    bar.gather();
-    gen.blockArrest(gov); // Spy block gov from using arrest in his next turn.
-    gen.gather(); // It dosent count as a turn, so after the blocking he can have another turn.
-
-
-    gov.arrest(bar);
-    gov.gather();
-    bar.gather();
-    gen.gather();
-
-    gov.arrest(bar);
-    bar.gather();
-    gen.gather();
-
-    gov.gather();
-    bar.gather();
-    gen.gather();
-    std::cout << "bar coins:  " << bar.coins() << std::endl;
-
-    gov.gather();
-
+    // Illegal move test
     try{
-        bar.gather();
+        judge->gather();
     }
     catch(const std::exception& e){
         std::cerr << e.what() << '\n';
     }
-    bar.coup(gen);
+
+    std::cout << "After round 1: " << std::endl;
+    for (Player* p : g.getPlayers()) {
+        std::cout << "Player " << p->getName() << " has  " << p->coins() << " coins." << std::endl;
+    }
+
+    std::cout << "Current turn: " << g.turn() << std::endl;
+
+    // Next rounds
+    governor->gather();
+    baron->tax();    
+    general->tax();
+    merchant->gather();
+    judge->gather();
+    spy->tax();
+    governor->undo(*spy);
+
+    std::cout << "After round 2: " << std::endl;
+    for (Player* p : g.getPlayers()) {
+        std::cout << "Player " << p->getName() << " has  " << p->coins() << " coins." << std::endl;
+    }
+
+    governor->gather();
+    baron->invest();
+    general->gather();
+    merchant->gather();
+    judge->gather();
+    spy->tax();
+
+    std::cout << "After round 3: " << std::endl;
+    for (Player* p : g.getPlayers()) {
+        std::cout << "Player " << p->getName() << " has  " << p->coins() << " coins." << std::endl;
+    }
+
+    governor->tax();
+    baron->gather();
+    general->gather();
+    merchant->gather();
+    judge->gather();
+    spy->tax();
+    
+    std::cout << "After round 4: " << std::endl;
+    for (Player* p : g.getPlayers()) {
+        std::cout << "Player " << p->getName() << " has  " << p->coins() << " coins." << std::endl;
+    }
+
+    governor->tax();
+    std::cout << governor->getName() << " has " << governor->coins() << " coins." << std::endl;
+
+    // Coup actions
+    baron->coup(*governor);
+    general->tax();
+    merchant->tax();
+    judge->gather();
+    spy->gather();
+
+    std::cout << "Remaining Players: " << std::endl;
+    for (Player* p : g.getPlayers()) {
+        if (p->getAlive()) {
+            std::cout << "- " << p->getName() << " (" << p->coins() << " coins)" << std::endl;
+        }
+    }
+
+    baron->tax();
+    general->gather();
+    merchant->coup(*general);
+    judge->gather();
+    spy->gather();
+
+    std::cout << "Remaining Players: " << std::endl;
+    for (Player* p : g.getPlayers()) {
+        if (p->getAlive()) {
+            std::cout << "- " << p->getName() << " (" << p->coins() << " coins)" << std::endl;
+        }
+    }
+
+    baron->tax();
+    merchant->tax();
+    judge->gather();
+    spy->coup(*baron);
+
+    std::cout << "Remaining Players: " << std::endl;
+    for (Player* p : g.getPlayers()) {
+        if (p->getAlive()) {
+            std::cout << "- " << p->getName() << " (" << p->coins() << " coins)" << std::endl;
+        }
+    }
+
+    merchant->tax();
+    judge->coup(*spy);
+    try{
+        spy->gather(); // Spy got eliminated, can't play. 
+    }
+    catch(const std::exception& e){
+        std::cerr << e.what() << '\n';
+    }
+
+    std::cout << "Remaining Players: " << std::endl;
+    for (Player* p : g.getPlayers()) {
+        if (p->getAlive()) {
+            std::cout << "- " << p->getName() << " (" << p->coins() << " coins)" << std::endl;
+        }
+    }
+
+    // Trying to check if there a winner before the game ended.
+    try{
+        g.winner();
+    }
+    catch(const std::exception& e){
+        std::cerr << e.what() << '\n';
+    }
     
 
-    /*
-    // First round of gathers
-    gov.gather(); bar.gather(); gen.gather();
+    merchant->tax();
+    judge->tax();
 
-    // Second round: tax by governor
-    gov.tax(); bar.gather(); gen.gather();
-
-    // Governor tax action
-    std::cout << "Governor coins before tax: " << gov.coins() << std::endl;
-    gov.tax();
-    std::cout << "Governor coins after tax: " << gov.coins() << std::endl;
-
-    std::cout << "current turn : " << g.turn() << std::endl;
-    bar.gather(); gen.gather();
-    // Sanction and check
-    gov.sanction(bar);
-    try { bar.gather(); } 
-    catch (const std::exception& e) { std::cout << "Baron sanctioned: " << e.what() << std::endl; }
-
-    // Arrest attempt on governor
-    try { bar.arrest(gov); }
-    catch (const std::exception& e) { std::cout << "Arrest failed: " << e.what() << std::endl; }
-
-    std::cout << "current turn : " << g.turn() << std::endl;
-    // Final round and winner check
-    gen.gather(); 
-    std::cout << "gov coins before gather:  " << gov.coins() << std::endl;
-    gov.gather(); 
-    std::cout << "gov coins after gather: " << gov.coins() << std::endl;
-
-    std::cout << "bar coins before gather:  " << bar.coins() << std::endl;
-    bar.gather(); //wont be able to use gather
-    std::cout << "bar coins after gather: " << bar.coins() << std::endl;
-
-    try { std::cout << "Winner: " << g.winner() << std::endl; }
-    catch (const std::exception& e) { std::cout << "No winner yet: " << e.what() << std::endl; }
+    merchant->coup(*judge);
+    try{
+        judge->gather(); // Judge got eliminated, can't play. 
+    }
+    catch(const std::exception& e){
+        std::cerr << e.what() << '\n';
+    }
     
-    std::cout << "current turn : " << g.turn() << std::endl;
-    std::cout << "is bar sanctioned : " << bar.getSan() << std::endl;
-    std::cout << "is gen sanctioned : " << gen.getSan() << std::endl;
-    gen.gather();
-    std::cout << "current turn : " << g.turn() << std::endl;
 
-    gov.gather(); 
-    std::cout << "bar coins before gather:  " << bar.coins() << std::endl;
-    bar.gather(); 
-    std::cout << "gen coins before gather: " << gen.coins() << std::endl;
+    std::cout << "Remaining Players: " << std::endl;
+    for (Player* p : g.getPlayers()) {
+        if (p->getAlive()) {
+            std::cout << "- " << p->getName() << " (" << p->coins() << " coins)" << std::endl;
+        }
+    }
 
-    gen.tax();
-    gov.gather(); 
-
-    std::cout << "gen coins before arrest: " << gen.coins() << std::endl;
-    std::cout << "bar coins before arrest: " << bar.coins() << std::endl;
-    bar.arrest(gen);
-    std::cout << "gen coins after arrest: " << gen.coins() << std::endl; 
-    std::cout << "bar coins before arrest: " << bar.coins() << std::endl;
-
-    std::cout << "gen coins : " << gen.coins() << std::endl;
-    gen.coup(bar);
-
-    gov.gather();
-    gen.gather();
-
-    std::cout << "gov coins : " << gov.coins() << std::endl;
-    gov.bribe();
-    std::cout << "gov coins : " << gov.coins() << std::endl;
-
-    gov.tax();
-    std::cout << "gov coins : " << gov.coins() << std::endl;
-
-    gov.gather();
-    std::cout << "gov coins : " << gov.coins() << std::endl;
-
-
-    gen.gather();
-    std::cout << "gen coins : " << gen.coins() << std::endl;
-
-    */
+    // Checking agaain, now that there is only one player in the game.
+    try{
+        std::cout << "Game ended. Winner: " << g.winner() << std::endl;
+    }
+    catch(const std::exception& e){
+        std::cerr << e.what() << '\n';
+    }
+    
     return 0;
 }

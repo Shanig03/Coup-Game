@@ -16,7 +16,7 @@ namespace coup {
         // Must have at least 3 coins to invest 3 coins.
         if (this->coins() >= 3){
             this->coinsAmount += 3; // Invest 3 coins and gets 6 coins - overall gets 3 new coins
-            std::cout << "The Baron invested 3 coins ang got 6 coins." << std::endl;
+            std::cout << "The Baron invested 3 coins and got 6 coins." << std::endl;
             this->currGame.passTurns(); // Count as a turn.
         }
     }

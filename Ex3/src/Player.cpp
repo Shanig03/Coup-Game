@@ -11,9 +11,7 @@ namespace coup {
     // Constructor
     Player::Player(Game& game, const std::string& name, const std::string& role): 
     playerName(name),  coinsAmount(0), role(role), currGame(game), isSanctioned(false), 
-    isAlive(true), anotherTurn(false), undoCoup(false) {}
-
-    coup::Player::~Player() = default;
+    isAlive(true), anotherTurn(false), undoCoup(false), arrested(false), arrestBlocked(false) {}
 
     void Player::startTurn(){
         // Check if a player has 10 coins or more.
@@ -74,6 +72,7 @@ namespace coup {
         startTurn();
         if (!p.getAlive()){throw std::runtime_error("The player on whom the action is preformed is out of the game.");}
 
+        if (p.coins() < 1){throw std::runtime_error("The player on whom the action is preformed dosent have at least 1 coin.");}
         // Prevent from the same player to be arrested twice.
         if (p.getArrested()){ 
             std::cout << "Can't arrest the same player more then once in a row." << std::endl;
@@ -85,6 +84,7 @@ namespace coup {
             std::cout << "Arrest action blocked by the Spy, try again in your next turn." << std::endl;
             return;
         }
+        
         // General gets back the coin if got arrested.
         if (p.getRole() != "General"){
 

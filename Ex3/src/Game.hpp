@@ -45,6 +45,21 @@ namespace coup {
         ~Game(); // Distructor
 
         /**
+         * @brief Disable the copy constructor to prevent copying the Game object.
+         * This ensures there is only one instance managing the game state at a time.
+         * Useful to avoid issues like multiple games managing the same players or turns.
+         * @param g the game to be copied.
+         */
+        Game(const Game& g) = delete;
+        
+        /**
+         * @brief Disable the copy assignment operator for the same reason as above.
+         * Prevents accidental reassignment of a Game instance, which could corrupt the game state.
+         * @param g the game.
+         */
+        Game& operator=(const Game& g) = delete;
+
+        /**
          * @brief Returns the names of all players.
          * @return Vector of player names.
          */

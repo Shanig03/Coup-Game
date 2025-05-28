@@ -106,7 +106,12 @@ void showArrestPopup(sf::Font& font, coup::Player* currentPlayer, const std::vec
                         // Find the player with this name
                         for (coup::Player* target : players) {
                             if (target->getName() == selectedName) {
-                                currentPlayer->arrest(*target);
+                                try{
+                                    currentPlayer->arrest(*target);
+                                }
+                                catch(const std::exception& e){
+                                    std::cerr << e.what() << '\n';
+                                }
                                 break;
                             }
                         }

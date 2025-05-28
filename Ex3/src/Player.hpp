@@ -41,7 +41,13 @@ namespace coup {
          */
         Player(Game& game, const std::string& name, const std::string& role);
 
-        virtual ~Player();
+        /**
+         * @brief Virtual destructor to allow proper cleanup of derived classes.
+         * 
+         * Ensures that when a Player pointer to a derived class is deleted,
+         * the derived class's destructor is also invoked correctly, preventing memory leaks.
+         */
+        virtual ~Player() = default; 
         
         /**
          * @brief Executes the gather action, giving the player 1 coin.

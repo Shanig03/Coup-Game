@@ -3,7 +3,7 @@ Email : shanig7531@gmail.com
 # COUP Game
 ## Game Overview
 
-Coup is a bluffing and deduction game. Each player controls roles and uses them to perform actions such as gaining coins, eliminating other players, and blocking attacks. The goal is to be the last surviving player. Posibble actions for all players are - gather, tax, arrest, bribe, sanction and coup. Some of the actions can be blocked by other players.
+Coup is a bluffing and deduction game. Each player controls a role and uses it to perform actions such as gaining coins, eliminating other players, and blocking attacks. The goal is to be the last surviving player. Posibble actions for all players are - gather, tax, arrest, bribe, sanction and coup. Some of the actions can be blocked by other players. Each player, in his turn, can chose one of the possible action or some special ability he has.
 
 This project include core game logics, all six unique roles, each with its own powers and restrictions, a modular class-based architecture, a Doctest test suite, a Makefile for easy building and testing and a main to run the game in GUI (SFML) form.
 
@@ -43,6 +43,16 @@ Each role has:
 - A constructor setting the role name
 
 - One or more custom methods to support its unique gameplay ability.
+
+### 🔹 WindowManager:
+The WindowManager class provides a reusable interface for creating and managing an SFML window with a background, custom font, and interactive GUI elements like buttons and text. It handles rendering and user event processing, allowing for flexible integration of custom logic and drawing. This class is designed to simplify GUI management in the game by centralizing all window-related operations.
+
+### 🔹 Button:
+The Button class represents a customizable clickable button in the SFML window. It supports setting position, size, text, color, and font. The class provides basic interactivity with a click detection method and handles its own rendering. Designed to integrate easily with WindowManager, this class simplifies the creation of user interface elements in the game.
+
+### 🔹 Tests:
+All game logic is tested using the Doctest framework. Tests are organized into a single TEST_CASE, with each class and functionality tested in separate SUBCASEs for clarity and maintainability.
+
 
 ## File Descriptions
 | File / Folder          | Purpose                                             |

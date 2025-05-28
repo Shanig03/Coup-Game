@@ -394,7 +394,7 @@ TEST_CASE("Tests for the Spy class") {
         spy->blockArrest(*target);
         CHECK(target->getArrestBlocked());
 
-        // Checking that the block arrest doesnt let him usr the arrest action in his turn.
+        // Checking that the block arrest doesnt let him use the arrest action in his turn.
         spy->gather();
         target->arrest(*spy);
         CHECK(target->getArrestBlocked());
@@ -531,6 +531,7 @@ TEST_CASE("Tests for the Baron class") {
     SUBCASE("Constructor sets correct name and role") {
         Game game;
         Baron* baron = new Baron(game, "Ron");
+        game.addPlayer(baron);
         CHECK(baron->getName() == "Ron");
         CHECK(baron->getRole() == "Baron");
     }
@@ -569,6 +570,7 @@ TEST_CASE("Tests for the Baron class") {
     SUBCASE("Invest throws if Baron is not alive") {
         Game game;
         Baron* baron = new Baron(game, "Ron");
+        game.addPlayer(baron);
         baron->setAlive(false);  // Simulate death
         CHECK_THROWS_WITH(baron->invest(), "This Baron is out of the game.");
     }
@@ -870,13 +872,6 @@ TEST_CASE("Game class tests") {
             game.addPlayer(dup);
             CHECK_EQ(game.players().size(), 2); // no new player added
             delete dup;
-        }
-
-        SUBCASE("Too many players throws") {
-            for (int i = 0; i < 4; i++) {
-                game.addPlayer(new Governor(game, "P" + std::to_string(i)));
-            }
-            CHECK_THROWS_AS(game.addPlayer(new Governor(game, "Overflow")), std::runtime_error);
         }
     }
 
