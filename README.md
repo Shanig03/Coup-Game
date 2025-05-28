@@ -91,7 +91,7 @@ The Makefile provides the following targets:
 | `make Main`       | Builds the simple main example game binary   |
 | `make gui`       | Builds the main GUI game binary   |
 | `make test`  | Compiles and runs all tests   |
-| `make valgrind`   | Run the main with valgrind for memory leak detection |
+| `make valgrind`   | Run the tests with valgrind for memory leak detection (can be changed to run on the main)|
 | `make clean` | Cleans all compiled files     |
 
 ## How To Run
