@@ -7,6 +7,8 @@ Coup is a bluffing and deduction game. Each player controls a role and uses it t
 
 This project include core game logics, all six unique roles, each with its own powers and restrictions, a modular class-based architecture, a Doctest test suite, a Makefile for easy building and testing and a main to run the game in GUI (SFML) form.
 
+Link to Google Drive with a video of an example of running the game with the GUI: https://drive.google.com/file/d/1B5IcHgP5Q17c0Tld9mad_nNHRl12JVFa/view?usp=sharing
+
 ## Class Descriptions
 ### 🔹 Game:
 Manages the entire game lifecycle.
