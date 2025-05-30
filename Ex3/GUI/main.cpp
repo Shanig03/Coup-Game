@@ -663,7 +663,12 @@ int main() {
                                     if (!currentPlayer->getSan()){
                                         // After tax action, ask players if they want to undo
                                         processUndoForTax(gameWindow.getFont(), game1, currentPlayer);
-                                        currentPlayer->tax();
+                                        try{
+                                            currentPlayer->tax();
+                                        }
+                                        catch(const std::exception& e){
+                                            std::cerr << e.what() << '\n';
+                                        }
                                     }
                                 }
                                 if (action == "Bribe") {
